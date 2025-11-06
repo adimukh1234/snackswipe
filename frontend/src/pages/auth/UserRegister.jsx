@@ -2,28 +2,33 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import '../../styles/auth.css'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 export default function UserRegister() {
+
+  const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const firstName = e.target.firstName.value;
-        const lastName = e.target.lastName.value;
+        const fullname = e.target.fullname.value;
         const email = e.target.email.value;
         const password = e.target.password.value;
 
-
         const response = await axios.post("http://localhost:3000/api/auth/user/register", {
-            fullname: firstName + " " + lastName,
+            fullname,
             email,
             password
-        },
-        {
+        }, {
             withCredentials: true
         })
 
         console.log(response.data);
+
+        navigate('/');
+
+        
+
     }
   return (
     <div className="auth-shell">
@@ -33,10 +38,10 @@ export default function UserRegister() {
           <p className="subtitle">Join as a user to start exploring.</p>
         </header>
 
-        <form className="form" onSubmit={(e) => e.preventDefault()}>
+        <form className="form" onSubmit={handleSubmit}>
           <div className="field">
-            <label className="label" htmlFor="name">Full name</label>
-            <input className="input" id="name" name="name" type="text" placeholder="Your full name" autoComplete="name" required />
+            <label className="label" htmlFor="fullname">Full name</label>
+            <input className="input" id="fullname" name="fullname" type="text" placeholder="Your full name" autoComplete="name" required />
           </div>
 
           <div className="field">

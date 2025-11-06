@@ -1,8 +1,31 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import '../../styles/auth.css'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 export default function UserLogin() {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    try {
+      const res = await axios.post('http://localhost:3000/api/auth/user/login', {
+        email,
+        password
+      }, { withCredentials: true });
+
+      console.log(res.data);
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+      alert('Login failed. Please check your credentials and try again.');
+    }
+  }
+
   return (
     <div className="auth-shell">
       <section className="card">
@@ -11,7 +34,7 @@ export default function UserLogin() {
           <p className="subtitle">Sign in to continue as a user.</p>
         </header>
 
-        <form className="form" onSubmit={(e) => e.preventDefault()}>
+        <form className="form" onSubmit={handleSubmit}>
           <div className="field">
             <label className="label" htmlFor="email">Email</label>
             <input className="input" id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
@@ -27,7 +50,7 @@ export default function UserLogin() {
 
           <div className="row">
             <label className="checkbox">
-              <input type="checkbox" />
+              <input type="checkbox" name="remember" />
               Remember me
             </label>
           </div>

@@ -1,8 +1,50 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import '../../styles/auth.css'
+import axios from 'axios'
 
 export default function FoodPartnerRegister() {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const bizname = e.target.bizname.value;
+    const email = e.target.email.value;
+    const phone = e.target.phone.value;
+    const address = e.target.address.value;
+    const password = e.target.password.value;
+    const confirm = e.target.confirm.value;
+    const cuisine = e.target.cuisine.value;
+
+    if (password !== confirm) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    try {
+      const res = await axios.post('http://localhost:3000/api/auth/foodpartner/register', {
+        name: bizname,
+        address, // send address explicitly
+        email,
+        contactNumber: phone,
+        password,
+        cuisineType: cuisine
+      }, { withCredentials: true });
+
+      console.log('SUCCESS', res.data);
+      navigate('/foodpartner/create'); // adjust destination if needed
+    } catch (err) {
+      // improved error reporting
+      console.error('Axios error', err);
+      console.error('Response data:', err?.response?.data);
+      console.error('Response status:', err?.response?.status);
+
+      const serverMessage = err?.response?.data?.message || err?.response?.data || err.message;
+      alert('Registration failed: ' + serverMessage);
+    }
+  }
+
   return (
     <div className="auth-shell">
       <section className="card">
@@ -11,7 +53,7 @@ export default function FoodPartnerRegister() {
           <p className="subtitle">Grow with us by joining the platform.</p>
         </header>
 
-        <form className="form" onSubmit={(e) => e.preventDefault()}>
+        <form className="form" onSubmit={handleSubmit}>
           <div className="field">
             <label className="label" htmlFor="bizname">Business name</label>
             <input className="input" id="bizname" name="bizname" type="text" placeholder="Your Restaurant LLC" autoComplete="organization" required />
@@ -37,9 +79,6 @@ export default function FoodPartnerRegister() {
             <input className="input" id="password" name="password" type="password" placeholder="Create a strong password" autoComplete="new-password" required />
           </div>
 
-          
-
-        
           <div className="field">
             <label className="label" htmlFor="confirm">Confirm password</label>
             <input className="input" id="confirm" name="confirm" type="password" placeholder="Re-enter password" autoComplete="new-password" required />
@@ -48,7 +87,7 @@ export default function FoodPartnerRegister() {
           <div className='field'>
             <label className='label' htmlFor='cuisine'>Cuisine</label>
             <input className='input' id='cuisine' name='cuisine' type='text' placeholder='e.g., Italian, Chinese, Fast Food' required />
-            </div>
+          </div>
 
           <div className="actions">
             <button className="btn" type="submit">Create account</button>
