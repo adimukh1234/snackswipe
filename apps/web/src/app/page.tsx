@@ -1,54 +1,23 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Search, Bell, ChevronRight } from 'lucide-react';
+import { MapPin, Search, Bell, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
+import { SearchModal } from '@/components/SearchModal';
+import { DishDetailModal } from '@/components/DishDetailModal';
+import { useFeed } from '@/hooks/useDishes';
+import { Dish } from '@/lib/api';
 import Link from 'next/link';
 
-// Mock featured dishes data
-const featuredDishes = [
-  {
-    id: '1',
-    name: 'Butter Chicken',
-    price: 350,
-    imageUrl: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=400',
-    partnerName: 'Punjab Grill',
-    rating: 4.8,
-  },
-  {
-    id: '2',
-    name: 'Margherita Pizza',
-    price: 299,
-    imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400',
-    partnerName: 'Pizza Palace',
-    rating: 4.6,
-  },
-  {
-    id: '3',
-    name: 'Sushi Platter',
-    price: 599,
-    imageUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400',
-    partnerName: 'Tokyo Bites',
-    rating: 4.9,
-  },
-  {
-    id: '4',
-    name: 'Loaded Burger',
-    price: 249,
-    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400',
-    partnerName: 'Burger Barn',
-    rating: 4.5,
-  },
-];
-
 const categories = [
-  { name: 'All', emoji: '🍽️', active: true },
-  { name: 'Burger', emoji: '🍔' },
-  { name: 'Pizza', emoji: '🍕' },
-  { name: 'Sushi', emoji: '🍣' },
-  { name: 'Indian', emoji: '🍛' },
-  { name: 'Dessert', emoji: '🍰' },
+  { name: 'All', emoji: '🍽️', value: '' },
+  { name: 'Burger', emoji: '🍔', value: 'burger' },
+  { name: 'Pizza', emoji: '🍕', value: 'pizza' },
+  { name: 'Sushi', emoji: '🍣', value: 'sushi' },
+  { name: 'Indian', emoji: '🍛', value: 'indian' },
+  { name: 'Dessert', emoji: '🍰', value: 'dessert' },
 ];
 
 const containerVariants = {
@@ -72,6 +41,24 @@ const itemVariants = {
 };
 
 export default function HomePage() {
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
+  const [isDishModalOpen, setIsDishModalOpen] = useState(false);
+
+  // Fetch dishes from API
+  const { data, isLoading } = useFeed({ 
+    limit: 8,
+    category: selectedCategory || undefined 
+  });
+
+  const dishes = data?.dishes || [];
+
+  const handleDishClick = (dish: Dish) => {
+    setSelectedDish(dish);
+    setIsDishModalOpen(true);
+  };
+
   return (
     <div className="page-container gradient-subtle">
       {/* Header */}
@@ -99,7 +86,10 @@ export default function HomePage() {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-3"
           >
-            <button className="btn-icon">
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="btn-icon"
+            >
               <Search className="w-5 h-5 text-gray-600" />
             </button>
             <button className="btn-icon relative">
@@ -159,7 +149,8 @@ export default function HomePage() {
               key={cat.name}
               variants={itemVariants}
               whileTap={{ scale: 0.95 }}
-              className={`category-pill ${cat.active ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat.value)}
+              className={`category-pill ${selectedCategory === cat.value ? 'active' : ''}`}
             >
               <span className="text-2xl">{cat.emoji}</span>
               <span className="text-xs font-semibold">{cat.name}</span>
@@ -200,41 +191,77 @@ export default function HomePage() {
       {/* Popular Dishes */}
       <section className="py-4 pb-8">
         <div className="section-header px-5">
-          <h2 className="section-title">Popular near you</h2>
-          <button className="section-link">See all</button>
+          <h2 className="section-title">
+            {selectedCategory ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} dishes` : 'Popular near you'}
+          </h2>
+          <Link href="/discover" className="section-link">See all</Link>
         </div>
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-2 gap-4 px-5"
-        >
-          {featuredDishes.map((dish) => (
-            <motion.div key={dish.id} variants={itemVariants}>
-              <Card className="group cursor-pointer">
-                <div className="relative overflow-hidden">
-                  <img
-                    src={dish.imageUrl}
-                    alt={dish.name}
-                    className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                  <span className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-sm">
-                    <span className="text-yellow-500">★</span> {dish.rating}
-                  </span>
-                </div>
-                <CardContent className="p-3.5">
-                  <h3 className="font-semibold text-gray-900 text-sm truncate leading-tight">
-                    {dish.name}
-                  </h3>
-                  <p className="text-xs text-gray-400 truncate mt-0.5">{dish.partnerName}</p>
-                  <p className="text-purple-600 font-bold mt-2 text-base">₹{dish.price}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
+        
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+          </div>
+        ) : dishes.length > 0 ? (
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-2 gap-4 px-5"
+          >
+            {dishes.slice(0, 8).map((dish) => (
+              <motion.div 
+                key={dish.id} 
+                variants={itemVariants}
+                onClick={() => handleDishClick(dish)}
+              >
+                <Card className="group cursor-pointer">
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={dish.thumbnailUrl || dish.imageUrls?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'}
+                      alt={dish.name}
+                      className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    <span className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-sm">
+                      <span className="text-yellow-500">★</span> {dish.partnerRating || '4.5'}
+                    </span>
+                    {dish.isVeg && (
+                      <span className="absolute top-2.5 left-2.5 bg-green-500 text-white px-2 py-0.5 rounded text-xs font-bold">
+                        VEG
+                      </span>
+                    )}
+                  </div>
+                  <CardContent className="p-3.5">
+                    <h3 className="font-semibold text-gray-900 text-sm truncate leading-tight">
+                      {dish.name}
+                    </h3>
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{dish.partnerName}</p>
+                    <p className="text-purple-600 font-bold mt-2 text-base">₹{parseFloat(dish.price).toFixed(0)}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <div className="text-center py-12 px-5">
+            <span className="text-4xl mb-4 block">🍽️</span>
+            <p className="text-gray-500">No dishes found in this category</p>
+          </div>
+        )}
       </section>
+
+      {/* Search Modal */}
+      <SearchModal 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+      />
+
+      {/* Dish Detail Modal */}
+      <DishDetailModal
+        dish={selectedDish}
+        isOpen={isDishModalOpen}
+        onClose={() => setIsDishModalOpen(false)}
+      />
     </div>
   );
 }

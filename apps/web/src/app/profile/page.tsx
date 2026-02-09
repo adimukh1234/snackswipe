@@ -12,19 +12,11 @@ import {
   Heart,
   Clock,
   Star,
-  Crown
+  Crown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-
-const menuItems = [
-  { icon: MapPin, label: 'Saved Addresses', value: '2 addresses' },
-  { icon: CreditCard, label: 'Payment Methods', value: '1 card' },
-  { icon: Heart, label: 'Favorites', value: '12 dishes' },
-  { icon: Clock, label: 'Order History', value: '' },
-  { icon: Bell, label: 'Notifications', badge: true },
-  { icon: Settings, label: 'Settings', value: '' },
-  { icon: HelpCircle, label: 'Help & Support', value: '' },
-];
+import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
+import Link from 'next/link';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -40,6 +32,56 @@ const itemVariants = {
 };
 
 export default function ProfilePage() {
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  // Loading state
+  if (!isLoaded) {
+    return (
+      <div className="page-container bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Not logged in state
+  if (!isSignedIn) {
+    return (
+      <div className="page-container bg-gradient-to-b from-gray-50 to-white">
+        <header className="px-5 py-6 safe-top">
+          <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+        </header>
+
+        <div className="flex flex-col items-center justify-center px-8 py-16">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mb-6">
+            <span className="text-4xl">👤</span>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Welcome to Zomagram</h2>
+          <p className="text-gray-500 text-center mb-8 max-w-[260px]">
+            Login to track orders, save favorites, and get personalized recommendations
+          </p>
+          <SignInButton mode="modal">
+            <Button size="lg">Login / Sign Up</Button>
+          </SignInButton>
+        </div>
+      </div>
+    );
+  }
+
+  const menuItems = [
+    { icon: Clock, label: 'Order History', href: '/orders' },
+    { icon: MapPin, label: 'Saved Addresses', value: 'Coming soon' },
+    { icon: CreditCard, label: 'Payment Methods', value: 'Coming soon' },
+    { icon: Heart, label: 'Favorites', value: 'Coming soon' },
+    { icon: Bell, label: 'Notifications', badge: true },
+    { icon: Settings, label: 'Settings', value: '' },
+    { icon: HelpCircle, label: 'Help & Support', value: '' },
+  ];
+
+  // Get user initials
+  const initials = user?.firstName 
+    ? `${user.firstName[0]}${user.lastName?.[0] || ''}`.toUpperCase()
+    : user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || 'U';
+
   return (
     <div className="page-container bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
@@ -60,34 +102,46 @@ export default function ProfilePage() {
         className="mx-5 p-5 bg-white rounded-2xl shadow-md border border-gray-100"
       >
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-purple-500/30">
-            J
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-purple-500/30 overflow-hidden">
+            {user?.imageUrl ? (
+              <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-bold text-gray-900">John Doe</h2>
-            <p className="text-gray-500 text-sm">+91 98765 43210</p>
+            <h2 className="text-lg font-bold text-gray-900">
+              {user?.fullName || user?.firstName || 'Zomagram User'}
+            </h2>
+            <p className="text-gray-500 text-sm">
+              {user?.emailAddresses?.[0]?.emailAddress || user?.phoneNumbers?.[0]?.phoneNumber || ''}
+            </p>
           </div>
-          <button className="text-purple-600 text-sm font-semibold px-3 py-1.5 rounded-lg hover:bg-purple-50 transition-colors">
-            Edit
-          </button>
+          <UserButton 
+            appearance={{
+              elements: {
+                avatarBox: 'w-10 h-10',
+              }
+            }}
+          />
         </div>
 
         {/* Stats */}
         <div className="flex justify-around mt-5 pt-5 border-t border-gray-100">
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">23</p>
+            <p className="text-2xl font-bold text-gray-900">0</p>
             <p className="text-xs text-gray-400 font-medium mt-0.5">Orders</p>
           </div>
           <div className="w-px bg-gray-100" />
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">12</p>
+            <p className="text-2xl font-bold text-gray-900">0</p>
             <p className="text-xs text-gray-400 font-medium mt-0.5">Favorites</p>
           </div>
           <div className="w-px bg-gray-100" />
           <div className="text-center">
             <div className="flex items-center justify-center gap-1">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              <p className="text-2xl font-bold text-gray-900">4.8</p>
+              <p className="text-2xl font-bold text-gray-900">-</p>
             </div>
             <p className="text-xs text-gray-400 font-medium mt-0.5">Rating</p>
           </div>
@@ -125,11 +179,10 @@ export default function ProfilePage() {
         animate="visible"
         className="mx-5 mt-6 bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden"
       >
-        {menuItems.map((item, index) => {
+        {menuItems.map((item) => {
           const Icon = item.icon;
-          return (
-            <motion.button
-              key={item.label}
+          const content = (
+            <motion.div
               variants={itemVariants}
               className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
             >
@@ -148,21 +201,42 @@ export default function ProfilePage() {
                 )}
                 <ChevronRight className="w-5 h-5 text-gray-300" />
               </div>
-            </motion.button>
+            </motion.div>
+          );
+
+          if (item.href) {
+            return (
+              <Link key={item.label} href={item.href}>
+                {content}
+              </Link>
+            );
+          }
+
+          return (
+            <button key={item.label} className="w-full text-left">
+              {content}
+            </button>
           );
         })}
       </motion.div>
 
-      {/* Logout */}
-      <motion.button
+      {/* Manage Account - Using Clerk UserButton */}
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="mx-5 mt-5 mb-8 w-[calc(100%-40px)] flex items-center justify-center gap-2 py-4 text-red-500 font-semibold hover:bg-red-50 rounded-xl transition-colors"
+        className="mx-5 mt-5 mb-8 flex justify-center"
       >
-        <LogOut className="w-5 h-5" />
-        Log Out
-      </motion.button>
+        <UserButton 
+          showName
+          appearance={{
+            elements: {
+              rootBox: 'w-full',
+              userButtonTrigger: 'w-full flex items-center justify-center gap-2 py-4 text-purple-600 font-semibold hover:bg-purple-50 rounded-xl transition-colors border-2 border-purple-200',
+            }
+          }}
+        />
+      </motion.div>
     </div>
   );
 }

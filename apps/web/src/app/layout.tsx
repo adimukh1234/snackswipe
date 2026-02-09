@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from 'next/font/google';
+import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 import { BottomNav } from '@/components/layout/BottomNav';
+import { Providers } from '@/components/Providers';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -38,24 +40,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <head>
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-      </head>
-      <body className="antialiased">
-        {/* Mobile Container - Centers content on desktop */}
-        <div className="mobile-container">
-          {/* Main Content Area */}
-          <main className="main-content">
-            {children}
-          </main>
-          
-          {/* Bottom Navigation */}
-          <BottomNav />
-        </div>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={inter.variable}>
+        <head>
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        </head>
+        <body className="antialiased">
+          <Providers>
+            {/* Mobile Container - Centers content on desktop */}
+            <div className="mobile-container">
+              {/* Main Content Area */}
+              <main className="main-content">
+                {children}
+              </main>
+              
+              {/* Bottom Navigation */}
+              <BottomNav />
+            </div>
+          </Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -1,4 +1,5 @@
 import { pgTable, uuid, varchar, text, decimal, integer, boolean, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
 // Users (Consumers)
 export const users = pgTable('users', {
@@ -103,3 +104,65 @@ export const userAddresses = pgTable('user_addresses', {
   isDefault: boolean('is_default').default(false),
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+// Relations for Drizzle relational queries
+export const usersRelations = relations(users, ({ many }) => ({
+  swipes: many(swipes),
+  cartItems: many(cartItems),
+  orders: many(orders),
+  addresses: many(userAddresses),
+}));
+
+export const foodPartnersRelations = relations(foodPartners, ({ many }) => ({
+  dishes: many(dishes),
+  orders: many(orders),
+}));
+
+export const dishesRelations = relations(dishes, ({ one, many }) => ({
+  partner: one(foodPartners, {
+    fields: [dishes.partnerId],
+    references: [foodPartners.id],
+  }),
+  swipes: many(swipes),
+  cartItems: many(cartItems),
+}));
+
+export const swipesRelations = relations(swipes, ({ one }) => ({
+  user: one(users, {
+    fields: [swipes.userId],
+    references: [users.id],
+  }),
+  dish: one(dishes, {
+    fields: [swipes.dishId],
+    references: [dishes.id],
+  }),
+}));
+
+export const cartItemsRelations = relations(cartItems, ({ one }) => ({
+  user: one(users, {
+    fields: [cartItems.userId],
+    references: [users.id],
+  }),
+  dish: one(dishes, {
+    fields: [cartItems.dishId],
+    references: [dishes.id],
+  }),
+}));
+
+export const ordersRelations = relations(orders, ({ one }) => ({
+  user: one(users, {
+    fields: [orders.userId],
+    references: [users.id],
+  }),
+  partner: one(foodPartners, {
+    fields: [orders.partnerId],
+    references: [foodPartners.id],
+  }),
+}));
+
+export const userAddressesRelations = relations(userAddresses, ({ one }) => ({
+  user: one(users, {
+    fields: [userAddresses.userId],
+    references: [users.id],
+  }),
+}));

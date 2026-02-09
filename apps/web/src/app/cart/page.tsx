@@ -206,9 +206,13 @@ export default function CartPage() {
 
           {/* Checkout Button */}
           <div className="fixed bottom-20 left-0 right-0 px-5 py-4 glass border-t border-gray-200/50">
-            <Button className="w-full" size="lg">
-              Proceed to Checkout • ₹{grandTotal.toFixed(2)}
-            </Button>
+            <div className="max-w-[430px] mx-auto">
+              <Link href="/checkout">
+                <Button className="w-full" size="lg">
+                  Proceed to Checkout • ₹{grandTotal.toFixed(2)}
+                </Button>
+              </Link>
+            </div>
           </div>
         </>
       )}

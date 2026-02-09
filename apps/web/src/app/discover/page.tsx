@@ -1,105 +1,37 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Star, ChevronLeft, RotateCcw, Sparkles } from 'lucide-react';
+import { X, Heart, Star, ChevronLeft, RotateCcw, Sparkles, Loader2 } from 'lucide-react';
 import { SwipeCard, SwipeCardRef } from '@/components/ui/SwipeCard';
 import { Button } from '@/components/ui/Button';
 import { useCartStore } from '@/stores/cartStore';
+import { useFeed, useSwipe } from '@/hooks/useDishes';
+import { Dish } from '@/lib/api';
 import Link from 'next/link';
 
-// Mock dishes data
-const mockDishes = [
-  {
-    id: '1',
-    name: 'Butter Chicken',
-    description: 'Creamy tomato-based curry with tender chicken pieces, served with garlic naan and fragrant basmati rice.',
-    price: 350,
-    imageUrl: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=800&q=80',
-    partnerName: 'Punjab Grill',
-    partnerId: 'p1',
-    rating: 4.8,
-    prepTime: 25,
-    isVeg: false,
-    tags: ['spicy', 'bestseller'],
-  },
-  {
-    id: '2',
-    name: 'Margherita Pizza',
-    description: 'Classic Italian pizza with fresh mozzarella, San Marzano tomatoes, and aromatic fresh basil.',
-    price: 299,
-    imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&q=80',
-    partnerName: 'Pizza Palace',
-    partnerId: 'p2',
-    rating: 4.6,
-    prepTime: 20,
-    isVeg: true,
-    tags: ['italian', 'vegetarian'],
-  },
-  {
-    id: '3',
-    name: 'Sushi Platter',
-    description: 'Chef\'s selection of fresh nigiri and maki rolls with premium wasabi and pickled ginger.',
-    price: 599,
-    imageUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&q=80',
-    partnerName: 'Tokyo Bites',
-    partnerId: 'p3',
-    rating: 4.9,
-    prepTime: 15,
-    isVeg: false,
-    tags: ['japanese', 'fresh'],
-  },
-  {
-    id: '4',
-    name: 'Loaded Burger',
-    description: 'Juicy Angus beef patty with aged cheddar, caramelized onions, and our signature sauce.',
-    price: 249,
-    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80',
-    partnerName: 'Burger Barn',
-    partnerId: 'p4',
-    rating: 4.5,
-    prepTime: 18,
-    isVeg: false,
-    tags: ['american', 'popular'],
-  },
-  {
-    id: '5',
-    name: 'Pad Thai',
-    description: 'Authentic stir-fried rice noodles with tiger prawns, crushed peanuts, and tamarind.',
-    price: 320,
-    imageUrl: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=800&q=80',
-    partnerName: 'Thai Orchid',
-    partnerId: 'p5',
-    rating: 4.7,
-    prepTime: 22,
-    isVeg: false,
-    tags: ['thai', 'noodles'],
-  },
-  {
-    id: '6',
-    name: 'Paneer Tikka',
-    description: 'Smoky grilled cottage cheese cubes marinated in spiced yogurt with mint chutney.',
-    price: 280,
-    imageUrl: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=800&q=80',
-    partnerName: 'Spice Garden',
-    partnerId: 'p6',
-    rating: 4.6,
-    prepTime: 20,
-    isVeg: true,
-    tags: ['indian', 'vegetarian'],
-  },
-];
-
 export default function DiscoverPage() {
-  const [dishes, setDishes] = useState(mockDishes);
+  const [localDishes, setLocalDishes] = useState<Dish[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'like' | 'superlike'>('like');
+  const [sessionId] = useState(() => crypto.randomUUID());
   const cardRef = useRef<SwipeCardRef>(null);
   const addItem = useCartStore((state) => state.addItem);
 
-  const currentDish = dishes[0];
-  const remainingCount = dishes.length;
+  // Fetch dishes from API
+  const { data, isLoading, error, refetch } = useFeed({ limit: 20 });
+  const swipeMutation = useSwipe();
+
+  // Sync API data to local state
+  useEffect(() => {
+    if (data?.dishes) {
+      setLocalDishes(data.dishes);
+    }
+  }, [data?.dishes]);
+
+  const currentDish = localDishes[0];
+  const remainingCount = localDishes.length;
 
   const showAddedToast = (dishName: string, type: 'like' | 'superlike' = 'like') => {
     setToastMessage(type === 'superlike' ? `⭐ ${dishName}` : `${dishName}`);
@@ -109,42 +41,81 @@ export default function DiscoverPage() {
   };
 
   const handleSwipeLeft = useCallback(() => {
-    setDishes((prev) => prev.slice(1));
-  }, []);
+    if (currentDish) {
+      // Record skip in backend
+      swipeMutation.mutate({ dishId: currentDish.id, action: 'skip', sessionId });
+    }
+    setLocalDishes((prev) => prev.slice(1));
+  }, [currentDish, swipeMutation, sessionId]);
 
   const handleSwipeRight = useCallback(() => {
     if (currentDish) {
+      // Record like in backend
+      swipeMutation.mutate({ dishId: currentDish.id, action: 'like', sessionId });
+      
+      // Add to cart
       addItem({
         dishId: currentDish.id,
         name: currentDish.name,
-        price: currentDish.price,
-        imageUrl: currentDish.imageUrl,
-        partnerName: currentDish.partnerName,
+        price: parseFloat(currentDish.price),
+        imageUrl: currentDish.thumbnailUrl || currentDish.imageUrls?.[0] || '',
+        partnerName: currentDish.partnerName || 'Restaurant',
         partnerId: currentDish.partnerId,
       });
       showAddedToast(currentDish.name, 'like');
     }
-    setDishes((prev) => prev.slice(1));
-  }, [currentDish, addItem]);
+    setLocalDishes((prev) => prev.slice(1));
+  }, [currentDish, addItem, swipeMutation, sessionId]);
 
   const handleSuperLike = useCallback(() => {
     if (currentDish) {
+      // Record superlike in backend
+      swipeMutation.mutate({ dishId: currentDish.id, action: 'superlike', sessionId });
+      
+      // Add to cart
       addItem({
         dishId: currentDish.id,
         name: currentDish.name,
-        price: currentDish.price,
-        imageUrl: currentDish.imageUrl,
-        partnerName: currentDish.partnerName,
+        price: parseFloat(currentDish.price),
+        imageUrl: currentDish.thumbnailUrl || currentDish.imageUrls?.[0] || '',
+        partnerName: currentDish.partnerName || 'Restaurant',
         partnerId: currentDish.partnerId,
       });
       showAddedToast(currentDish.name, 'superlike');
     }
-    setDishes((prev) => prev.slice(1));
-  }, [currentDish, addItem]);
+    setLocalDishes((prev) => prev.slice(1));
+  }, [currentDish, addItem, swipeMutation, sessionId]);
 
   const resetDishes = () => {
-    setDishes(mockDishes);
+    refetch();
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-purple-50 via-white to-gray-50">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+        >
+          <Loader2 className="w-12 h-12 text-purple-500" />
+        </motion.div>
+        <p className="mt-4 text-gray-500 font-medium">Loading delicious dishes...</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-purple-50 via-white to-gray-50 px-8">
+        <span className="text-6xl mb-6">😕</span>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Oops!</h2>
+        <p className="text-gray-500 text-center mb-6">Couldn't load dishes. Make sure the API is running.</p>
+        <Button onClick={() => refetch()}>Try Again</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-b from-purple-50 via-white to-gray-50 overflow-hidden">
@@ -174,7 +145,7 @@ export default function DiscoverPage() {
 
       {/* Swipe Area */}
       <div className="flex-1 relative px-4 pb-4 min-h-0">
-        {dishes.length === 0 ? (
+        {localDishes.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -203,7 +174,7 @@ export default function DiscoverPage() {
           <div className="relative w-full h-full">
             {/* Stacked Cards */}
             <AnimatePresence mode="popLayout">
-              {dishes.slice(0, 3).map((dish, index) => {
+              {localDishes.slice(0, 3).map((dish, index) => {
                 const isTop = index === 0;
                 const stackOffset = index * 10;
                 const stackScale = 1 - index * 0.05;
@@ -246,7 +217,7 @@ export default function DiscoverPage() {
       </div>
 
       {/* Action Buttons */}
-      {dishes.length > 0 && (
+      {localDishes.length > 0 && (
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -311,14 +282,20 @@ export default function DiscoverPage() {
   );
 }
 
-// Separate DishCard component for cleaner code
-function DishCard({ dish }: { dish: typeof mockDishes[0] }) {
+// Dish Card Component
+function DishCard({ dish }: { dish: Dish }) {
+  const imageUrl = dish.thumbnailUrl || dish.imageUrls?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80';
+  const tags = dish.tags || [];
+  const isVeg = dish.isVeg;
+  const rating = dish.partnerRating || '4.5';
+  const prepTime = dish.prepTimeMins || 20;
+
   return (
     <div className="w-full h-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100/50">
       {/* Image Section - 65% height */}
       <div className="relative h-[65%]">
         <img
-          src={dish.imageUrl}
+          src={imageUrl}
           alt={dish.name}
           className="w-full h-full object-cover"
           draggable={false}
@@ -328,12 +305,12 @@ function DishCard({ dish }: { dish: typeof mockDishes[0] }) {
         
         {/* Tags */}
         <div className="absolute top-5 left-5 flex gap-2">
-          {dish.isVeg && (
+          {isVeg && (
             <span className="px-3 py-1.5 bg-green-500 text-white text-xs font-bold rounded-full shadow-lg">
               🥬 VEG
             </span>
           )}
-          {dish.tags.includes('bestseller') && (
+          {tags.includes('bestseller') && (
             <span className="px-3 py-1.5 bg-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
               🔥 BESTSELLER
             </span>
@@ -343,30 +320,30 @@ function DishCard({ dish }: { dish: typeof mockDishes[0] }) {
         {/* Rating Badge */}
         <div className="absolute top-5 right-5 px-3 py-2 bg-white/95 backdrop-blur-md rounded-xl flex items-center gap-1.5 shadow-lg">
           <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-          <span className="text-sm font-bold text-gray-900">{dish.rating}</span>
+          <span className="text-sm font-bold text-gray-900">{rating}</span>
         </div>
         
         {/* Main Info Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
           <h2 className="text-3xl font-black tracking-tight leading-tight">{dish.name}</h2>
-          <p className="text-white/80 font-medium mt-1.5">{dish.partnerName} • {dish.prepTime} min</p>
+          <p className="text-white/80 font-medium mt-1.5">{dish.partnerName} • {prepTime} min</p>
         </div>
       </div>
       
       {/* Details Section - 35% height */}
       <div className="h-[35%] p-6 flex flex-col justify-between">
         <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
-          {dish.description}
+          {dish.description || 'A delicious dish prepared with care and premium ingredients.'}
         </p>
         
         <div className="flex items-end justify-between">
           <div>
             <p className="text-4xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              ₹{dish.price}
+              ₹{parseFloat(dish.price).toFixed(0)}
             </p>
           </div>
           <div className="flex gap-2">
-            {dish.tags.slice(0, 2).map((tag) => (
+            {tags.slice(0, 2).map((tag) => (
               <span 
                 key={tag} 
                 className="px-3 py-1.5 bg-purple-50 text-purple-600 text-xs font-semibold rounded-full capitalize"
