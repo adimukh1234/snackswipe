@@ -2,32 +2,18 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Search, Bell, ChevronRight, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
+import { Bell, ChevronRight, Loader2, ArrowRight } from 'lucide-react';
 import { SearchModal } from '@/components/SearchModal';
 import { DishDetailModal } from '@/components/DishDetailModal';
 import { useFeed } from '@/hooks/useDishes';
 import { Dish } from '@/lib/api';
 import Link from 'next/link';
 
-const categories = [
-  { name: 'All', emoji: '🍽️', value: '' },
-  { name: 'Burger', emoji: '🍔', value: 'burger' },
-  { name: 'Pizza', emoji: '🍕', value: 'pizza' },
-  { name: 'Sushi', emoji: '🍣', value: 'sushi' },
-  { name: 'Indian', emoji: '🍛', value: 'indian' },
-  { name: 'Dessert', emoji: '🍰', value: 'dessert' },
-];
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.06,
-      delayChildren: 0.1,
-    },
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
   },
 };
 
@@ -42,16 +28,10 @@ const itemVariants = {
 
 export default function HomePage() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [isDishModalOpen, setIsDishModalOpen] = useState(false);
 
-  // Fetch dishes from API
-  const { data, isLoading } = useFeed({ 
-    limit: 8,
-    category: selectedCategory || undefined 
-  });
-
+  const { data, isLoading } = useFeed({ limit: 12 });
   const dishes = data?.dishes || [];
 
   const handleDishClick = (dish: Dish) => {
@@ -59,196 +39,335 @@ export default function HomePage() {
     setIsDishModalOpen(true);
   };
 
+  // Recent craves — take first 4 dishes
+  const recentCraves = dishes.slice(0, 4);
+  // Trending — take next dishes
+  const trendingDishes = dishes.slice(4, 8);
+
   return (
-    <div className="page-container gradient-subtle">
-      {/* Header */}
-      <header className="sticky top-0 z-40 glass safe-top">
-        <div className="flex items-center justify-between px-5 py-4">
-          <motion.div 
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3"
+    <div className="page-container" style={{ background: '#000000' }}>
+      {/* ═══ Header ═══ */}
+      <header 
+        className="flex items-center justify-between p-6 sticky top-0 z-50 safe-top"
+        style={{
+          background: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        }}
+      >
+        <h1 
+          className="text-3xl font-bold tracking-tighter uppercase italic"
+          style={{ color: '#CCFF00', fontFamily: 'var(--font-display)' }}
+        >
+          Crave
+        </h1>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => setIsSearchOpen(true)}
+            className="flex items-center justify-center p-2 rounded-full"
+            style={{ 
+              background: '#1a1a1a', 
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
-              <MapPin className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-400">Deliver to</p>
-              <div className="flex items-center gap-1">
-                <p className="text-sm font-semibold text-gray-900">Current Location</p>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              </div>
-            </div>
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3"
+            <Bell className="w-5 h-5 text-white" />
+          </button>
+          <div 
+            className="w-10 h-10 rounded-full overflow-hidden"
+            style={{ border: '2px solid #CCFF00' }}
           >
-            <button 
-              onClick={() => setIsSearchOpen(true)}
-              className="btn-icon"
-            >
-              <Search className="w-5 h-5 text-gray-600" />
-            </button>
-            <button className="btn-icon relative">
-              <Bell className="w-5 h-5 text-gray-600" />
-              <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white" />
-            </button>
-          </motion.div>
+            <img 
+              src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" 
+              alt="Profile" 
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="px-5 pt-6 pb-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-        >
-          <h1 className="text-2xl font-bold text-gray-900 leading-tight tracking-tight">
-            What are you going
-            <br />
-            <span className="text-purple-600">to eat today?</span>
-          </h1>
-        </motion.div>
-
-        {/* Promo Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: 0.15, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="promo-card mt-5"
-        >
-          <div className="relative z-10">
-            <p className="text-sm font-medium opacity-90">Big discount</p>
-            <p className="text-4xl font-black tracking-tight mt-1">10.10</p>
-            <p className="text-sm opacity-80 mt-1">Claim your voucher now!</p>
-          </div>
-          <div className="absolute right-4 bottom-0 opacity-30">
-            <span className="text-7xl">🍟</span>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Categories */}
-      <section className="py-4">
-        <div className="section-header px-5">
-          <h2 className="section-title">Category</h2>
-          <button className="section-link">See more</button>
-        </div>
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex gap-3 overflow-x-auto hide-scrollbar px-5 pb-2"
-        >
-          {categories.map((cat) => (
-            <motion.button
-              key={cat.name}
-              variants={itemVariants}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setSelectedCategory(cat.value)}
-              className={`category-pill ${selectedCategory === cat.value ? 'active' : ''}`}
-            >
-              <span className="text-2xl">{cat.emoji}</span>
-              <span className="text-xs font-semibold">{cat.name}</span>
-            </motion.button>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* Discover CTA */}
-      <section className="px-5 py-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="bg-gradient-to-br from-purple-50 via-white to-pink-50 rounded-3xl p-8 text-center border border-purple-100/50 shadow-lg shadow-purple-100/30"
-        >
-          <motion.span 
-            className="text-6xl mb-4 block"
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            👆
-          </motion.span>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
-            Ready to discover?
-          </h3>
-          <p className="text-gray-500 text-sm mb-6 max-w-[240px] mx-auto leading-relaxed">
-            Swipe through delicious dishes and find your next favorite meal
-          </p>
+      <main className="flex-1 pb-24">
+        {/* ═══ Hero Section: The Stack ═══ */}
+        <section className="px-6 mb-8">
           <Link href="/discover">
-            <Button variant="primary" size="lg">
-              Start Swiping
-            </Button>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="relative group cursor-pointer overflow-hidden rounded-xl"
+              style={{ aspectRatio: '4/5', background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.2)' }}
+            >
+              <img 
+                src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80" 
+                alt="Start Swiping" 
+                className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, black 0%, rgba(0,0,0,0.2) 40%, transparent 100%)' }} />
+              <div className="absolute bottom-0 left-0 p-6 w-full">
+                <span 
+                  className="inline-block px-3 py-1 text-xs font-bold uppercase mb-3"
+                  style={{ background: '#CCFF00', color: '#000000' }}
+                >
+                  Live Feed
+                </span>
+                <h2 
+                  className="text-5xl font-bold tracking-tighter uppercase text-white mb-4"
+                  style={{ lineHeight: 0.9, fontFamily: 'var(--font-display)' }}
+                >
+                  Start<br/>Swiping
+                </h2>
+                <div className="flex items-center justify-between">
+                  <p className="font-medium tracking-tight" style={{ color: '#CCFF00' }}>
+                    Enter The Stack
+                  </p>
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center"
+                    style={{ background: '#CCFF00' }}
+                  >
+                    <ArrowRight className="w-5 h-5" style={{ color: '#000000' }} strokeWidth={2.5} />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </Link>
-        </motion.div>
-      </section>
+        </section>
 
-      {/* Popular Dishes */}
-      <section className="py-4 pb-8">
-        <div className="section-header px-5">
-          <h2 className="section-title">
-            {selectedCategory ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} dishes` : 'Popular near you'}
-          </h2>
-          <Link href="/discover" className="section-link">See all</Link>
-        </div>
-        
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+        {/* ═══ Active Order Status ═══ */}
+        <section className="px-6 mb-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="p-5 rounded-xl flex flex-col gap-4"
+            style={{ 
+              background: '#CCFF00', 
+              boxShadow: '0 0 20px rgba(204, 255, 0, 0.3)',
+            }}
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex flex-col">
+                <span className="text-xs font-bold uppercase tracking-[0.15em]" style={{ color: 'rgba(0,0,0,0.6)' }}>
+                  Active Order
+                </span>
+                <h3 className="text-xl font-extrabold leading-tight" style={{ color: '#000000', fontFamily: 'var(--font-display)' }}>
+                  Ramen on the way
+                </h3>
+              </div>
+              <span className="text-lg font-bold" style={{ color: '#000000', fontFamily: 'var(--font-mono)' }}>
+                12 min
+              </span>
+            </div>
+            <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.1)' }}>
+              <div className="h-full rounded-full" style={{ width: '70%', background: '#000000' }} />
+            </div>
+            <div className="flex items-center gap-2 text-sm font-medium" style={{ color: 'rgba(0,0,0,0.8)' }}>
+              <span className="text-sm">📍</span>
+              <span>Motto Ramen • 2.4 miles away</span>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ═══ Recent Craves ═══ */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between px-6 mb-4">
+            <h3 
+              className="text-xl font-bold uppercase tracking-tighter text-white"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              Recent Craves
+            </h3>
+            <button 
+              className="text-sm font-bold uppercase"
+              style={{ color: '#CCFF00' }}
+            >
+              View All
+            </button>
           </div>
-        ) : dishes.length > 0 ? (
           <motion.div 
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-2 gap-4 px-5"
+            className="flex gap-4 overflow-x-auto px-6 hide-scrollbar"
           >
-            {dishes.slice(0, 8).map((dish) => (
-              <motion.div 
-                key={dish.id} 
-                variants={itemVariants}
-                onClick={() => handleDishClick(dish)}
-              >
-                <Card className="group cursor-pointer">
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={dish.thumbnailUrl || dish.imageUrls?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'}
-                      alt={dish.name}
-                      className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-105"
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex-shrink-0 w-32">
+                  <div 
+                    className="aspect-square rounded-lg mb-2 animate-pulse"
+                    style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+                  />
+                  <div className="h-3 w-20 rounded animate-pulse" style={{ background: '#1a1a1a' }} />
+                </div>
+              ))
+            ) : recentCraves.length > 0 ? (
+              recentCraves.map((dish) => (
+                <motion.div 
+                  key={dish.id} 
+                  variants={itemVariants}
+                  className="flex-shrink-0 w-32 cursor-pointer"
+                  onClick={() => handleDishClick(dish)}
+                >
+                  <div 
+                    className="aspect-square rounded-lg overflow-hidden mb-2"
+                    style={{ border: '1px solid rgba(255, 255, 255, 0.1)' }}
+                  >
+                    <img 
+                      src={dish.thumbnailUrl || dish.imageUrls?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'} 
+                      alt={dish.name} 
+                      className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                    <span className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-sm">
-                      <span className="text-yellow-500">★</span> {dish.partnerRating || '4.5'}
-                    </span>
-                    {dish.isVeg && (
-                      <span className="absolute top-2.5 left-2.5 bg-green-500 text-white px-2 py-0.5 rounded text-xs font-bold">
-                        VEG
-                      </span>
-                    )}
                   </div>
-                  <CardContent className="p-3.5">
-                    <h3 className="font-semibold text-gray-900 text-sm truncate leading-tight">
-                      {dish.name}
-                    </h3>
-                    <p className="text-xs text-gray-400 truncate mt-0.5">{dish.partnerName}</p>
-                    <p className="text-purple-600 font-bold mt-2 text-base">₹{parseFloat(dish.price).toFixed(0)}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                  <p className="text-xs font-medium truncate" style={{ color: '#94a3b8' }}>
+                    {dish.name}
+                  </p>
+                </motion.div>
+              ))
+            ) : (
+              // Placeholder items when no data
+              ['Harvest Bowl', 'Spicy Pepperoni', 'Glazed Noir', 'Sticky Ribs'].map((name, i) => (
+                <div key={i} className="flex-shrink-0 w-32">
+                  <div 
+                    className="aspect-square rounded-lg overflow-hidden mb-2"
+                    style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+                  />
+                  <p className="text-xs font-medium truncate" style={{ color: '#94a3b8' }}>
+                    {name}
+                  </p>
+                </div>
+              ))
+            )}
           </motion.div>
-        ) : (
-          <div className="text-center py-12 px-5">
-            <span className="text-4xl mb-4 block">🍽️</span>
-            <p className="text-gray-500">No dishes found in this category</p>
+        </section>
+
+        {/* ═══ Trending Nearby ═══ */}
+        <section className="px-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 
+              className="text-xl font-bold uppercase tracking-tighter text-white"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              Trending Nearby
+            </h3>
           </div>
-        )}
-      </section>
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 gap-6"
+          >
+            {isLoading ? (
+              Array.from({ length: 2 }).map((_, i) => (
+                <div 
+                  key={i} 
+                  className="rounded-xl overflow-hidden animate-pulse"
+                  style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.05)' }}
+                >
+                  <div className="h-48 w-full" style={{ background: '#121212' }} />
+                  <div className="p-4 space-y-3">
+                    <div className="h-5 w-40 rounded" style={{ background: '#121212' }} />
+                    <div className="h-3 w-32 rounded" style={{ background: '#121212' }} />
+                    <div className="h-10 w-full rounded" style={{ background: '#121212' }} />
+                  </div>
+                </div>
+              ))
+            ) : trendingDishes.length > 0 ? (
+              trendingDishes.map((dish) => (
+                <motion.div 
+                  key={dish.id}
+                  variants={itemVariants}
+                  className="relative rounded-xl overflow-hidden cursor-pointer"
+                  style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.05)' }}
+                  onClick={() => handleDishClick(dish)}
+                >
+                  <div className="h-48 w-full">
+                    <img 
+                      src={dish.thumbnailUrl || dish.imageUrls?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600'} 
+                      alt={dish.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 
+                        className="text-lg font-bold text-white uppercase"
+                        style={{ fontFamily: 'var(--font-display)' }}
+                      >
+                        {dish.name}
+                      </h4>
+                      <span className="font-bold" style={{ color: '#CCFF00' }}>
+                        {dish.partnerRating || '4.5'}★
+                      </span>
+                    </div>
+                    <div className="flex gap-2 text-xs font-medium mb-4" style={{ color: '#94a3b8' }}>
+                      <span style={{ color: '#CCFF00', fontFamily: 'var(--font-mono)' }}>
+                        ₹{parseFloat(dish.price).toFixed(0)}
+                      </span>
+                      <span>•</span>
+                      <span>{dish.category || 'Food'}</span>
+                      <span>•</span>
+                      <span>{dish.partnerName}</span>
+                    </div>
+                    <button 
+                      className="w-full py-3 text-xs font-bold uppercase tracking-[0.15em] transition-colors text-white"
+                      style={{ 
+                        background: 'rgba(255, 255, 255, 0.05)', 
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.target as HTMLButtonElement).style.borderColor = '#CCFF00';
+                        (e.target as HTMLButtonElement).style.color = '#CCFF00';
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.target as HTMLButtonElement).style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                        (e.target as HTMLButtonElement).style.color = '#FFFFFF';
+                      }}
+                    >
+                      Order Now
+                    </button>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              // Placeholder cards when no data
+              [
+                { name: 'Midnight Dumplings', rating: '4.9', type: 'Chinese', dist: '0.8 miles' },
+                { name: 'Neon Sushi Bar', rating: '4.7', type: 'Japanese', dist: '1.2 miles' },
+              ].map((item, i) => (
+                <div 
+                  key={i}
+                  className="relative rounded-xl overflow-hidden"
+                  style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.05)' }}
+                >
+                  <div className="h-48 w-full" style={{ background: '#121212' }} />
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="text-lg font-bold text-white uppercase" style={{ fontFamily: 'var(--font-display)' }}>
+                        {item.name}
+                      </h4>
+                      <span className="font-bold" style={{ color: '#CCFF00' }}>{item.rating}★</span>
+                    </div>
+                    <div className="flex gap-2 text-xs font-medium mb-4" style={{ color: '#94a3b8' }}>
+                      <span>$$</span>
+                      <span>•</span>
+                      <span>{item.type}</span>
+                      <span>•</span>
+                      <span>{item.dist}</span>
+                    </div>
+                    <button 
+                      className="w-full py-3 text-xs font-bold uppercase tracking-[0.15em] text-white transition-colors"
+                      style={{ 
+                        background: 'rgba(255, 255, 255, 0.05)', 
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                      }}
+                    >
+                      Order Now
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </motion.div>
+        </section>
+      </main>
 
       {/* Search Modal */}
       <SearchModal 

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crave - The Stash</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "void": "#000000",
+                        "midnight": "#1A1A1A",
+                        "acid": "#CCFF00",
+                        "raspberry": "#FF2E63",
+                        "bone": "#F5F5F5",
+                        "concrete": "#888888",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    },
+                    borderRadius: {
+                        "card": "24px",
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(204, 255, 0, 0.15)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for hidden feel */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        /* Slide to confirm animation classes (visual only) */
+        .slide-track {
+            background: linear-gradient(90deg, #CCFF00 0%, #1A1A1A 0%);
+            transition: background 0.3s ease;
+        }
+        
+        .receipt-tear {
+            background-image: radial-gradient(circle at 10px 0, transparent 8px, #1A1A1A 8.5px);
+            background-size: 20px 10px;
+            background-repeat: repeat-x;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-void min-h-screen text-bone font-display antialiased overflow-x-hidden flex flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-20 bg-void/80 backdrop-blur-md border-b border-white/5 pt-6 pb-4 px-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<button class="text-white hover:text-acid transition-colors">
+<span class="material-symbols-outlined text-3xl">arrow_back</span>
+</button>
+<h1 class="text-3xl font-bold tracking-tight text-white uppercase">The Damage</h1>
+</div>
+<button class="text-concrete text-sm font-bold tracking-wide uppercase hover:text-raspberry transition-colors">Clear</button>
+</div>
+</header>
+<!-- Main Content: The Receipt -->
+<main class="flex-1 px-4 py-6 flex flex-col gap-6 max-w-lg mx-auto w-full">
+<!-- Cart Items List -->
+<div class="flex flex-col gap-4">
+<!-- Item 1: Standard State -->
+<div class="group relative overflow-hidden rounded-xl bg-midnight">
+<!-- Swipe Background (Delete Action) -->
+<div class="absolute inset-y-0 right-0 w-full bg-raspberry flex items-center justify-end px-6">
+<span class="material-symbols-outlined text-white text-2xl font-bold">delete</span>
+</div>
+<!-- Item Content (Sitting on top) -->
+<div class="relative z-10 flex items-center gap-4 bg-midnight p-3 pr-4 transition-transform group-active:-translate-x-20">
+<div class="h-16 w-16 shrink-0 rounded-lg bg-cover bg-center border border-white/10" data-alt="Close up of spicy miso ramen bowl with egg and pork" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCktuM-mrxcgxL7GAx-3domBgO6Qy0w5wrOecX1YrjstSBcnChZVaw70WGCfKxyVXgfkkuR7qJJ96lvgBVZiy3PA-cEt3VrnbzLYDF1BuOE3KNdZGLlX8-RFUyRkne4h2f0dL-CZEo1PonTan28-Ds5vdritSLPCEk_tfeq3ihVvl5FNPzPJlfaFFxzw9nCYpNVTu1hKK-O7Re9iBAxkziLV2vpaj-PUj2H1Vxu0KtHkKdfRyry-9GRVm6fKrAw05BChZMafQy_SW8w');">
+</div>
+<div class="flex flex-1 flex-col justify-center">
+<div class="flex justify-between items-start">
+<h3 class="text-lg font-bold leading-tight text-white">Spicy Miso Ramen</h3>
+<span class="font-mono text-acid text-base font-medium tracking-tight">$18.00</span>
+</div>
+<p class="text-concrete text-sm truncate mt-1">+ Extra Chashu, + Spicy Oil</p>
+</div>
+</div>
+</div>
+<!-- Item 2: Standard State -->
+<div class="group relative overflow-hidden rounded-xl bg-midnight">
+<div class="absolute inset-y-0 right-0 w-full bg-raspberry flex items-center justify-end px-6">
+<span class="material-symbols-outlined text-white text-2xl font-bold">delete</span>
+</div>
+<div class="relative z-10 flex items-center gap-4 bg-midnight p-3 pr-4 transition-transform">
+<div class="h-16 w-16 shrink-0 rounded-lg bg-cover bg-center border border-white/10" data-alt="Golden fried gyoza dumplings on a plate" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCfYdaW7iJtip10ozdsy9b0HFGtH6KsIVqoanjLIF0_p5D0zgYF6qjBTUr6c2aEGNCOfL76LDYkOo1WxcKz6nGpjHuHyc_aaDg8Zj3cpA1v__cINLkW9IUoS0NHLNeWXGpVIpUlSKIYxQlM9tJHqptLnj7eAmIkw6u-mWDDQMp_f6GsbKE8LnAvAuxihLPJIV_e1hRKgAZqOa2edeAltwszfyxlwxeHVaUE9yxGG4z7ciYtgMNUKJwBEPhpXvEHZwwfeBNEQvZYep_4');">
+</div>
+<div class="flex flex-1 flex-col justify-center">
+<div class="flex justify-between items-start">
+<h3 class="text-lg font-bold leading-tight text-white">Pork Gyoza (6pc)</h3>
+<span class="font-mono text-acid text-base font-medium tracking-tight">$8.50</span>
+</div>
+<p class="text-concrete text-sm truncate mt-1">Ponzu Sauce on side</p>
+</div>
+</div>
+</div>
+<!-- Item 3: Swiped State Example -->
+<div class="group relative overflow-hidden rounded-xl bg-midnight">
+<div class="absolute inset-y-0 right-0 w-full bg-raspberry flex items-center justify-end px-6">
+<span class="material-symbols-outlined text-white text-2xl font-bold">delete</span>
+</div>
+<!-- Simulating a partially swiped state for visual demo -->
+<div class="relative z-10 flex items-center gap-4 bg-midnight p-3 pr-4 translate-x-[-80px] border-r border-white/5 shadow-2xl">
+<div class="h-16 w-16 shrink-0 rounded-lg bg-cover bg-center border border-white/10" data-alt="Cold Asahi beer bottle with condensation" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDYsFHBAWewcXeCEFmkZPvnzBSqSwKtZSeC5ScgHZ4hiNSrVWep0btvchNAttqBJfUQ8RkCGoghR5RKfTldnodGCoMUINBFNHUIoG9AE6_hJe2ElXEk6tSxpTHWy9T8WwU61n8GjwL-jXtHAiik2pCbVPKNAOqAO8O_GX-eWbomUgyK5z3S8RT9viZHjdev8NBdA8ynFAPSeiTtfuSZu9WqId6WGzrMreKaw7KjQnNJmmrjhuuelA6h4FtPaVaUzUWO_D3LMlRmvLMP');">
+</div>
+<div class="flex flex-1 flex-col justify-center">
+<div class="flex justify-between items-start">
+<h3 class="text-lg font-bold leading-tight text-white">Asahi Super Dry</h3>
+<span class="font-mono text-acid text-base font-medium tracking-tight">$6.00</span>
+</div>
+<p class="text-concrete text-sm truncate mt-1">Ice Cold</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Receipt Divider -->
+<div class="relative py-2">
+<div aria-hidden="true" class="absolute inset-0 flex items-center">
+<div class="w-full border-t-2 border-dashed border-white/20"></div>
+</div>
+</div>
+<!-- Bill Breakdown -->
+<div class="bg-midnight rounded-2xl p-6 flex flex-col gap-3 font-mono text-sm relative">
+<!-- Receipt Top Tear Effect (Visual Polish) -->
+<div class="absolute -top-[5px] left-0 w-full h-[5px] receipt-tear rotate-180 opacity-0"></div>
+<div class="flex justify-between text-concrete">
+<span>Subtotal</span>
+<span class="text-bone">$32.50</span>
+</div>
+<div class="flex justify-between text-concrete">
+<span>Tax (8.875%)</span>
+<span class="text-bone">$2.88</span>
+</div>
+<div class="flex justify-between text-concrete">
+<span>Service Fee</span>
+<span class="text-bone">$1.62</span>
+</div>
+<div class="my-2 border-t border-white/10"></div>
+<div class="flex justify-between items-end">
+<span class="text-white font-display font-bold text-lg uppercase tracking-wide">Total</span>
+<span class="text-acid text-2xl font-bold tracking-tight">$37.00</span>
+</div>
+<!-- Payment Method -->
+<div class="mt-4 flex items-center justify-between bg-void/30 p-3 rounded-lg border border-white/5">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-white">credit_card</span>
+<span class="font-display font-medium text-white">Apple Pay</span>
+</div>
+<span class="text-acid font-bold text-xs uppercase cursor-pointer">Change</span>
+</div>
+</div>
+</main>
+<!-- Bottom Action Area -->
+<div class="sticky bottom-0 z-20 bg-gradient-to-t from-void via-void to-transparent pt-8 pb-8 px-6">
+<!-- Slide to Confirm Button -->
+<div class="relative h-16 w-full rounded-full bg-midnight border border-white/10 overflow-hidden select-none touch-none shadow-glow">
+<!-- Background Text -->
+<div class="absolute inset-0 flex items-center justify-center z-0">
+<span class="text-concrete/50 font-bold uppercase tracking-widest text-sm animate-pulse">Slide to Pay</span>
+</div>
+<!-- Active Fill Track (simulated at 10% progress) -->
+<div class="absolute inset-y-0 left-0 w-[15%] bg-acid/20 z-0"></div>
+<!-- Draggable Knob -->
+<div class="absolute top-1 bottom-1 left-1 w-20 rounded-full bg-acid flex items-center justify-center cursor-grab active:cursor-grabbing shadow-[0_0_15px_rgba(204,255,0,0.6)] z-10">
+<span class="material-symbols-outlined text-void font-bold text-2xl">arrow_forward</span>
+</div>
+<!-- Confirmed State Text (Hidden by default, shown when full) -->
+<div class="hidden absolute inset-0 flex items-center justify-center bg-acid z-20">
+<span class="text-void font-bold uppercase tracking-widest text-lg">SECURE THE BAG</span>
+</div>
+</div>
+</div>
+<!-- Empty State (Hidden, toggle 'hidden' class on main content to see) -->
+<div class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center min-h-[60vh]">
+<div class="w-24 h-24 rounded-full bg-midnight flex items-center justify-center mb-6 border border-white/5">
+<span class="material-symbols-outlined text-concrete text-4xl">no_meals</span>
+</div>
+<h2 class="text-2xl font-bold text-white mb-2">The Stash is Empty</h2>
+<p class="text-concrete mb-8">Your stomach is rumbling. Don't let it win.</p>
+<button class="px-8 py-3 bg-acid text-void font-bold rounded-full uppercase tracking-wide hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] transition-shadow">
+            Go Swipe
+        </button>
+</div>
+</body></html>

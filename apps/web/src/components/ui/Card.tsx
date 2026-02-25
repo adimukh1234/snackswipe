@@ -1,101 +1,48 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
-interface CardProps {
-  children: React.ReactNode;
-  className?: string;
-  elevated?: boolean;
-  gradient?: boolean;
-  onClick?: () => void;
-}
+// Card component
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function Card({ children, className, elevated = false, gradient = false, onClick }: CardProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={onClick ? { scale: 1.02, y: -2 } : undefined}
-      whileTap={onClick ? { scale: 0.98 } : undefined}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      onClick={onClick}
-      className={cn(
-        'overflow-hidden border',
-        elevated 
-          ? 'bg-white rounded-3xl shadow-xl border-gray-100/50' 
-          : 'bg-white rounded-2xl shadow-md border-gray-100',
-        gradient && 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-100/50',
-        onClick && 'cursor-pointer',
-        className
-      )}
-    >
-      {children}
-    </motion.div>
-  );
-}
+export const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'rounded-[20px] overflow-hidden transition-all duration-200',
+          'bg-[#1A1A2E] border border-[rgba(255,255,255,0.06)]',
+          'shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04)]',
+          'hover:border-[rgba(255,255,255,0.12)]',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
 
-interface CardImageProps {
-  src: string;
-  alt: string;
-  className?: string;
-  aspectRatio?: 'square' | 'video' | 'wide';
-}
+Card.displayName = 'Card';
 
-export function CardImage({ src, alt, className, aspectRatio = 'square' }: CardImageProps) {
-  const aspectClasses = {
-    square: 'aspect-square',
-    video: 'aspect-video',
-    wide: 'aspect-[4/3]',
-  };
+// CardContent component
+interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-  return (
-    <div className={cn('relative w-full overflow-hidden', aspectClasses[aspectRatio], className)}>
-      <img
-        src={src}
-        alt={alt}
-        className="w-full h-full object-cover"
-        loading="lazy"
-      />
-    </div>
-  );
-}
+export const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn('p-4', className)}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
 
-interface CardContentProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export function CardContent({ children, className }: CardContentProps) {
-  return (
-    <div className={cn('p-4', className)}>
-      {children}
-    </div>
-  );
-}
-
-interface CardHeaderProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export function CardHeader({ children, className }: CardHeaderProps) {
-  return (
-    <div className={cn('px-4 pt-4 pb-2', className)}>
-      {children}
-    </div>
-  );
-}
-
-interface CardFooterProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export function CardFooter({ children, className }: CardFooterProps) {
-  return (
-    <div className={cn('px-4 pb-4 pt-2 border-t border-gray-100', className)}>
-      {children}
-    </div>
-  );
-}
+CardContent.displayName = 'CardContent';

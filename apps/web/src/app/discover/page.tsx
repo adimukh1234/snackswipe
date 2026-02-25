@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Star, ChevronLeft, RotateCcw, Sparkles, Loader2 } from 'lucide-react';
+import { X, Heart, ChevronLeft, RotateCcw, Info, Loader2, ChevronUp } from 'lucide-react';
 import { SwipeCard, SwipeCardRef } from '@/components/ui/SwipeCard';
 import { Button } from '@/components/ui/Button';
 import { useCartStore } from '@/stores/cartStore';
@@ -14,16 +14,15 @@ export default function DiscoverPage() {
   const [localDishes, setLocalDishes] = useState<Dish[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState<'like' | 'superlike'>('like');
+  const [toastType, setToastType] = useState<'crave' | 'super'>('crave');
   const [sessionId] = useState(() => crypto.randomUUID());
+  const [showInfo, setShowInfo] = useState(false);
   const cardRef = useRef<SwipeCardRef>(null);
   const addItem = useCartStore((state) => state.addItem);
 
-  // Fetch dishes from API
   const { data, isLoading, error, refetch } = useFeed({ limit: 20 });
   const swipeMutation = useSwipe();
 
-  // Sync API data to local state
   useEffect(() => {
     if (data?.dishes) {
       setLocalDishes(data.dishes);
@@ -33,8 +32,8 @@ export default function DiscoverPage() {
   const currentDish = localDishes[0];
   const remainingCount = localDishes.length;
 
-  const showAddedToast = (dishName: string, type: 'like' | 'superlike' = 'like') => {
-    setToastMessage(type === 'superlike' ? `⭐ ${dishName}` : `${dishName}`);
+  const showAddedToast = (dishName: string, type: 'crave' | 'super' = 'crave') => {
+    setToastMessage(type === 'super' ? `⚡ ${dishName}` : `${dishName}`);
     setToastType(type);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 1800);
@@ -42,7 +41,6 @@ export default function DiscoverPage() {
 
   const handleSwipeLeft = useCallback(() => {
     if (currentDish) {
-      // Record skip in backend
       swipeMutation.mutate({ dishId: currentDish.id, action: 'skip', sessionId });
     }
     setLocalDishes((prev) => prev.slice(1));
@@ -50,10 +48,7 @@ export default function DiscoverPage() {
 
   const handleSwipeRight = useCallback(() => {
     if (currentDish) {
-      // Record like in backend
       swipeMutation.mutate({ dishId: currentDish.id, action: 'like', sessionId });
-      
-      // Add to cart
       addItem({
         dishId: currentDish.id,
         name: currentDish.name,
@@ -62,17 +57,14 @@ export default function DiscoverPage() {
         partnerName: currentDish.partnerName || 'Restaurant',
         partnerId: currentDish.partnerId,
       });
-      showAddedToast(currentDish.name, 'like');
+      showAddedToast(currentDish.name, 'crave');
     }
     setLocalDishes((prev) => prev.slice(1));
   }, [currentDish, addItem, swipeMutation, sessionId]);
 
   const handleSuperLike = useCallback(() => {
     if (currentDish) {
-      // Record superlike in backend
       swipeMutation.mutate({ dishId: currentDish.id, action: 'superlike', sessionId });
-      
-      // Add to cart
       addItem({
         dishId: currentDish.id,
         name: currentDish.name,
@@ -81,7 +73,7 @@ export default function DiscoverPage() {
         partnerName: currentDish.partnerName || 'Restaurant',
         partnerId: currentDish.partnerId,
       });
-      showAddedToast(currentDish.name, 'superlike');
+      showAddedToast(currentDish.name, 'super');
     }
     setLocalDishes((prev) => prev.slice(1));
   }, [currentDish, addItem, swipeMutation, sessionId]);
@@ -93,14 +85,14 @@ export default function DiscoverPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-purple-50 via-white to-gray-50">
+      <div className="h-screen flex flex-col items-center justify-center" style={{ background: '#000000' }}>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         >
-          <Loader2 className="w-12 h-12 text-purple-500" />
+          <Loader2 className="w-12 h-12" style={{ color: '#CCFF00' }} />
         </motion.div>
-        <p className="mt-4 text-gray-500 font-medium">Loading delicious dishes...</p>
+        <p className="mt-4 font-medium" style={{ color: '#8B8B8B' }}>Loading the stack...</p>
       </div>
     );
   }
@@ -108,48 +100,60 @@ export default function DiscoverPage() {
   // Error state
   if (error) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-purple-50 via-white to-gray-50 px-8">
+      <div className="h-screen flex flex-col items-center justify-center px-8" style={{ background: '#000000' }}>
         <span className="text-6xl mb-6">😕</span>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Oops!</h2>
-        <p className="text-gray-500 text-center mb-6">Couldn't load dishes. Make sure the API is running.</p>
+        <h2 className="text-xl font-bold mb-2" style={{ color: '#F5F0EB', fontFamily: 'var(--font-display)' }}>Oops!</h2>
+        <p className="text-center mb-6" style={{ color: '#8B8B8B' }}>Couldn&apos;t load dishes. Make sure the API is running.</p>
         <Button onClick={() => refetch()}>Try Again</Button>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-b from-purple-50 via-white to-gray-50 overflow-hidden">
-      {/* Header */}
-      <header className="flex items-center justify-between px-5 py-4 safe-top flex-shrink-0">
+    <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#000000' }}>
+      {/* Header — Minimal, dark */}
+      <header className="flex items-center justify-between px-5 py-3 safe-top flex-shrink-0">
         <Link href="/">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="btn-icon"
+            className="w-10 h-10 flex items-center justify-center rounded-full transition-colors"
+            style={{ background: 'rgba(255, 255, 255, 0.05)' }}
           >
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
+            <ChevronLeft className="w-6 h-6" style={{ color: '#8B8B8B' }} />
           </motion.button>
         </Link>
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2"
         >
-          <Sparkles className="w-5 h-5 text-purple-500" />
-          <h1 className="text-lg font-bold text-gray-900">Discover</h1>
+          <span 
+            className="text-lg font-bold uppercase tracking-wider"
+            style={{ color: '#CCFF00', fontFamily: 'var(--font-display)', textShadow: '0 0 20px rgba(204, 255, 0, 0.3)' }}
+          >
+            THE STACK
+          </span>
         </motion.div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-400">{remainingCount} left</span>
+        <div 
+          className="w-10 h-10 flex items-center justify-center rounded-full"
+          style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+        >
+          <span className="text-sm font-bold" style={{ color: '#8B8B8B', fontFamily: 'var(--font-mono)' }}>{remainingCount}</span>
         </div>
       </header>
 
       {/* Swipe Area */}
-      <div className="flex-1 relative px-4 pb-4 min-h-0">
+      <div className="flex-1 relative px-3 pb-2 min-h-0">
         {localDishes.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute inset-4 flex flex-col items-center justify-center bg-white rounded-3xl shadow-2xl border border-gray-100"
+            className="absolute inset-3 flex flex-col items-center justify-center rounded-[28px]"
+            style={{
+              background: '#0A0A0F',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
+              boxShadow: '0 8px 40px rgba(0, 0, 0, 0.5)',
+            }}
           >
             <motion.span 
               className="text-8xl mb-6"
@@ -161,24 +165,25 @@ export default function DiscoverPage() {
             >
               🎉
             </motion.span>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">All caught up!</h2>
-            <p className="text-gray-500 text-center px-10 mb-8 leading-relaxed max-w-[280px]">
-              You've seen all the dishes. Want to start fresh?
+            <h2 className="text-2xl font-bold mb-3" style={{ color: '#F5F0EB', fontFamily: 'var(--font-display)' }}>
+              Stack emptied!
+            </h2>
+            <p className="text-center px-10 mb-8 leading-relaxed max-w-[280px]" style={{ color: '#8B8B8B' }}>
+              You&apos;ve swiped through everything. Ready for another round?
             </p>
             <Button onClick={resetDishes} size="lg">
               <RotateCcw className="w-5 h-5" />
-              Start Over
+              Reload Stack
             </Button>
           </motion.div>
         ) : (
           <div className="relative w-full h-full">
-            {/* Stacked Cards */}
             <AnimatePresence mode="popLayout">
               {localDishes.slice(0, 3).map((dish, index) => {
                 const isTop = index === 0;
-                const stackOffset = index * 10;
-                const stackScale = 1 - index * 0.05;
-                const stackOpacity = 1 - index * 0.2;
+                const stackOffset = index * 8;
+                const stackScale = 1 - index * 0.035;
+                const stackOpacity = 1 - index * 0.15;
                 
                 if (isTop) {
                   return (
@@ -189,7 +194,11 @@ export default function DiscoverPage() {
                       onSwipeRight={handleSwipeRight}
                       onSuperLike={handleSuperLike}
                     >
-                      <DishCard dish={dish} />
+                      <StackDishCard 
+                        dish={dish} 
+                        showInfo={showInfo}
+                        onToggleInfo={() => setShowInfo(!showInfo)}
+                      />
                     </SwipeCard>
                   );
                 }
@@ -207,7 +216,7 @@ export default function DiscoverPage() {
                     }}
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   >
-                    <DishCard dish={dish} />
+                    <StackDishCard dish={dish} showInfo={false} onToggleInfo={() => {}} />
                   </motion.div>
                 );
               })}
@@ -216,42 +225,56 @@ export default function DiscoverPage() {
         )}
       </div>
 
-      {/* Action Buttons */}
+      {/* Action Buttons — PASS / INFO / CRAVE */}
       {localDishes.length > 0 && (
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex items-center justify-center gap-6 py-6 px-6 safe-bottom flex-shrink-0"
+          className="flex items-center justify-center gap-6 py-4 px-6 safe-bottom flex-shrink-0"
         >
-          {/* Skip Button */}
+          {/* PASS — Raspberry */}
           <motion.button
             whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.88 }}
             onClick={() => cardRef.current?.swipeLeft()}
-            className="w-16 h-16 flex items-center justify-center rounded-full bg-white border-2 border-red-100 shadow-lg hover:shadow-xl transition-shadow"
+            className="w-16 h-16 flex items-center justify-center rounded-full"
+            style={{
+              background: 'rgba(255, 46, 99, 0.12)',
+              border: '2px solid rgba(255, 46, 99, 0.3)',
+              boxShadow: '0 0 20px rgba(255, 46, 99, 0.15)',
+            }}
           >
-            <X className="w-8 h-8 text-red-400" />
+            <X className="w-8 h-8" style={{ color: '#FF2E63' }} strokeWidth={3} />
           </motion.button>
-          
-          {/* Super Like Button */}
+
+          {/* INFO — Bone, subtle */}
           <motion.button
-            whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.12 }}
+            whileTap={{ scale: 0.88 }}
             onClick={() => cardRef.current?.swipeSuperLike()}
-            className="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-shadow"
+            className="w-12 h-12 flex items-center justify-center rounded-full"
+            style={{
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1.5px solid rgba(255, 255, 255, 0.1)',
+            }}
           >
-            <Star className="w-6 h-6 text-white fill-white" />
+            <ChevronUp className="w-6 h-6" style={{ color: '#F5F0EB' }} />
           </motion.button>
-          
-          {/* Like Button */}
+
+          {/* CRAVE — Acid Lime */}
           <motion.button
             whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.88 }}
             onClick={() => cardRef.current?.swipeRight()}
-            className="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-500 shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-shadow"
+            className="w-16 h-16 flex items-center justify-center rounded-full"
+            style={{
+              background: 'rgba(204, 255, 0, 0.12)',
+              border: '2px solid rgba(204, 255, 0, 0.3)',
+              boxShadow: '0 0 20px rgba(204, 255, 0, 0.15)',
+            }}
           >
-            <Heart className="w-8 h-8 text-white fill-white" />
+            <Heart className="w-8 h-8" style={{ color: '#CCFF00', fill: '#CCFF00' }} />
           </motion.button>
         </motion.div>
       )}
@@ -263,18 +286,21 @@ export default function DiscoverPage() {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className={`fixed bottom-40 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-3 ${
-              toastType === 'superlike' 
-                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
-                : 'bg-gradient-to-r from-green-500 to-green-600 text-white'
-            }`}
+            className="fixed bottom-36 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full z-50 flex items-center gap-3"
+            style={{
+              background: toastType === 'super' 
+                ? 'rgba(204, 255, 0, 0.9)'
+                : 'rgba(204, 255, 0, 0.15)',
+              color: toastType === 'super' ? '#000000' : '#CCFF00',
+              border: `1px solid rgba(204, 255, 0, ${toastType === 'super' ? '1' : '0.3'})`,
+              boxShadow: '0 0 30px rgba(204, 255, 0, 0.2)',
+              backdropFilter: 'blur(12px)',
+            }}
           >
-            {toastType === 'superlike' ? (
-              <Star className="w-5 h-5 fill-white" />
-            ) : (
-              <Heart className="w-5 h-5 fill-white" />
-            )}
-            <p className="font-semibold">{toastMessage} added!</p>
+            <Heart className="w-5 h-5" style={{ fill: 'currentColor' }} />
+            <p className="font-semibold text-sm" style={{ fontFamily: 'var(--font-display)' }}>
+              {toastMessage} stashed!
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -282,77 +308,171 @@ export default function DiscoverPage() {
   );
 }
 
-// Dish Card Component
-function DishCard({ dish }: { dish: Dish }) {
+// ──────────────────────────────────────────────
+// Stack Dish Card — Full-bleed image, dark scrim
+// ──────────────────────────────────────────────
+function StackDishCard({ 
+  dish, 
+  showInfo,
+  onToggleInfo 
+}: { 
+  dish: Dish; 
+  showInfo: boolean;
+  onToggleInfo: () => void;
+}) {
   const imageUrl = dish.thumbnailUrl || dish.imageUrls?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80';
   const tags = dish.tags || [];
   const isVeg = dish.isVeg;
-  const rating = dish.partnerRating || '4.5';
   const prepTime = dish.prepTimeMins || 20;
 
+  const imageCount = dish.imageUrls?.length || 1;
+  const barCount = Math.min(Math.max(imageCount, 1), 5);
+
   return (
-    <div className="w-full h-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100/50">
-      {/* Image Section - 65% height */}
-      <div className="relative h-[65%]">
-        <img
-          src={imageUrl}
-          alt={dish.name}
-          className="w-full h-full object-cover"
-          draggable={false}
-        />
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        
-        {/* Tags */}
-        <div className="absolute top-5 left-5 flex gap-2">
-          {isVeg && (
-            <span className="px-3 py-1.5 bg-green-500 text-white text-xs font-bold rounded-full shadow-lg">
-              🥬 VEG
-            </span>
-          )}
-          {tags.includes('bestseller') && (
-            <span className="px-3 py-1.5 bg-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
-              🔥 BESTSELLER
-            </span>
-          )}
-        </div>
-        
-        {/* Rating Badge */}
-        <div className="absolute top-5 right-5 px-3 py-2 bg-white/95 backdrop-blur-md rounded-xl flex items-center gap-1.5 shadow-lg">
-          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-          <span className="text-sm font-bold text-gray-900">{rating}</span>
-        </div>
-        
-        {/* Main Info Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-          <h2 className="text-3xl font-black tracking-tight leading-tight">{dish.name}</h2>
-          <p className="text-white/80 font-medium mt-1.5">{dish.partnerName} • {prepTime} min</p>
-        </div>
+    <div 
+      className="w-full h-full rounded-[28px] overflow-hidden relative"
+      style={{ background: '#0A0A0F' }}
+    >
+      {/* Full-bleed Image */}
+      <img
+        src={imageUrl}
+        alt={dish.name}
+        className="w-full h-full object-cover"
+        draggable={false}
+      />
+
+      {/* Story-style Progress Bars */}
+      <div className="absolute top-0 left-0 right-0 px-3 pt-3 flex gap-1.5 z-10">
+        {Array.from({ length: barCount }).map((_, i) => (
+          <div 
+            key={i} 
+            className="flex-1 h-[3px] rounded-full overflow-hidden"
+            style={{ background: 'rgba(255, 255, 255, 0.2)' }}
+          >
+            <div 
+              className="h-full rounded-full"
+              style={{ 
+                width: i === 0 ? '100%' : '0%',
+                background: i === 0 ? '#CCFF00' : 'rgba(255, 255, 255, 0.3)',
+                boxShadow: i === 0 ? '0 0 6px rgba(204, 255, 0, 0.5)' : 'none',
+              }}
+            />
+          </div>
+        ))}
       </div>
-      
-      {/* Details Section - 35% height */}
-      <div className="h-[35%] p-6 flex flex-col justify-between">
-        <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
-          {dish.description || 'A delicious dish prepared with care and premium ingredients.'}
-        </p>
-        
+
+      {/* Tags — Top Left */}
+      <div className="absolute top-8 left-4 flex flex-col gap-2 z-10">
+        {isVeg && (
+          <span 
+            className="px-2.5 py-1 backdrop-blur-sm text-[10px] font-bold rounded-md uppercase tracking-wider"
+            style={{ background: 'rgba(0, 230, 118, 0.2)', color: '#00E676', border: '1px solid rgba(0, 230, 118, 0.3)' }}
+          >
+            🥬 Veg
+          </span>
+        )}
+        {tags.includes('bestseller') && (
+          <span 
+            className="px-2.5 py-1 backdrop-blur-sm text-[10px] font-bold rounded-md uppercase tracking-wider"
+            style={{ background: 'rgba(255, 179, 0, 0.2)', color: '#FFB300', border: '1px solid rgba(255, 179, 0, 0.3)' }}
+          >
+            🔥 Bestseller
+          </span>
+        )}
+      </div>
+
+      {/* Dark Scrim Overlay — Bottom */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, transparent 70%)' }}
+      />
+
+      {/* Bottom Info Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
         <div className="flex items-end justify-between">
-          <div>
-            <p className="text-4xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              ₹{parseFloat(dish.price).toFixed(0)}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {tags.slice(0, 2).map((tag) => (
-              <span 
-                key={tag} 
-                className="px-3 py-1.5 bg-purple-50 text-purple-600 text-xs font-semibold rounded-full capitalize"
+          <div className="flex-1 mr-3">
+            {/* Name + Price */}
+            <div className="flex items-baseline gap-2.5 mb-1.5">
+              <h2 
+                className="text-[28px] font-extrabold leading-tight tracking-tight"
+                style={{ color: '#F5F0EB', fontFamily: 'var(--font-display)' }}
               >
-                {tag}
+                {dish.name}
+              </h2>
+              <span 
+                className="text-xl font-bold"
+                style={{ color: '#CCFF00', fontFamily: 'var(--font-mono)' }}
+              >
+                ₹{parseFloat(dish.price).toFixed(0)}
               </span>
-            ))}
+            </div>
+            {/* Secondary Info */}
+            <div className="space-y-0.5">
+              <p className="text-sm flex items-center gap-1.5" style={{ color: 'rgba(245, 240, 235, 0.6)' }}>
+                <span className="text-xs">🍴</span>
+                {dish.partnerName || 'Restaurant'}
+              </p>
+              <p className="text-sm flex items-center gap-1.5" style={{ color: 'rgba(245, 240, 235, 0.4)' }}>
+                <span className="text-xs">⏱</span>
+                {prepTime} mins • {dish.category || 'Food'}
+              </p>
+            </div>
           </div>
+
+          {/* Info Button */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleInfo();
+            }}
+            className="w-8 h-8 flex items-center justify-center rounded-full"
+            style={{ 
+              background: 'rgba(255, 255, 255, 0.1)', 
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+            }}
+          >
+            <Info className="w-4 h-4" style={{ color: '#F5F0EB' }} />
+          </motion.button>
         </div>
+
+        {/* Expandable Info Section */}
+        <AnimatePresence>
+          {showInfo && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <p className="text-sm leading-relaxed mb-3" style={{ color: 'rgba(245, 240, 235, 0.6)' }}>
+                  {dish.description || 'A delicious dish prepared with care and premium ingredients.'}
+                </p>
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {tags.slice(0, 4).map((tag) => (
+                      <span 
+                        key={tag} 
+                        className="px-2.5 py-1 text-xs font-medium rounded-full capitalize"
+                        style={{ 
+                          background: 'rgba(204, 255, 0, 0.08)', 
+                          color: '#CCFF00',
+                          border: '1px solid rgba(204, 255, 0, 0.15)',
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

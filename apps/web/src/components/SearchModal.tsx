@@ -19,7 +19,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const addItem = useCartStore((state) => state.addItem);
 
-  // Focus input when modal opens
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -30,7 +29,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   }, [isOpen]);
 
-  // Debounced search
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
@@ -42,8 +40,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       setIsLoading(true);
       setHasSearched(true);
       
-      // Use the feed API and filter client-side for now
-      // In production, add a search endpoint
       const { data } = await dishesApi.getFeed({ limit: 50 });
       
       if (data?.dishes) {
@@ -84,7 +80,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-50"
+            className="fixed inset-0 z-50"
+            style={{ background: 'rgba(0, 0, 0, 0.75)' }}
           />
 
           {/* Modal */}
@@ -92,31 +89,49 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-0 left-0 right-0 z-50 bg-white rounded-b-3xl shadow-2xl max-h-[80vh] overflow-hidden"
+            className="fixed top-0 left-0 right-0 z-50 max-h-[80vh] overflow-hidden"
+            style={{
+              background: '#0A0A0F',
+              borderBottomLeftRadius: 24,
+              borderBottomRightRadius: 24,
+              boxShadow: '0 8px 40px rgba(0, 0, 0, 0.6)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            }}
           >
             {/* Search Input */}
-            <div className="p-5 border-b border-gray-100 safe-top">
+            <div 
+              className="p-5 safe-top"
+              style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}
+            >
               <div className="relative flex items-center">
-                <Search className="absolute left-4 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-4 w-5 h-5" style={{ color: '#8B8B8B' }} />
                 <input
                   ref={inputRef}
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search dishes, restaurants..."
-                  className="w-full h-12 pl-12 pr-12 bg-gray-100 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full h-12 pl-12 pr-12 rounded-xl focus:outline-none"
+                  style={{
+                    background: '#1A1A2E',
+                    color: '#F5F0EB',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    fontFamily: 'var(--font-body)',
+                  }}
                 />
                 {query && (
                   <button
                     onClick={() => setQuery('')}
-                    className="absolute right-12 p-1 hover:bg-gray-200 rounded-full"
+                    className="absolute right-12 p-1 rounded-full"
+                    style={{ color: '#8B8B8B' }}
                   >
-                    <X className="w-4 h-4 text-gray-400" />
+                    <X className="w-4 h-4" />
                   </button>
                 )}
                 <button
                   onClick={onClose}
-                  className="ml-3 text-purple-600 font-medium text-sm"
+                  className="ml-3 font-medium text-sm"
+                  style={{ color: '#CCFF00' }}
                 >
                   Cancel
                 </button>
@@ -127,7 +142,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <div className="overflow-y-auto max-h-[60vh] p-5">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#CCFF00' }} />
                 </div>
               ) : results.length > 0 ? (
                 <div className="space-y-3">
@@ -137,7 +152,11 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       onClick={() => handleAddToCart(dish)}
-                      className="w-full flex items-center gap-4 p-3 bg-gray-50 hover:bg-purple-50 rounded-2xl transition-colors text-left"
+                      className="w-full flex items-center gap-4 p-3 rounded-2xl transition-colors text-left"
+                      style={{
+                        background: '#1A1A2E',
+                        border: '1px solid rgba(255, 255, 255, 0.04)',
+                      }}
                     >
                       <img
                         src={dish.thumbnailUrl || dish.imageUrls?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'}
@@ -145,13 +164,15 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         className="w-16 h-16 rounded-xl object-cover"
                       />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate">{dish.name}</h3>
-                        <p className="text-sm text-gray-500 truncate">{dish.partnerName}</p>
+                        <h3 className="font-semibold truncate" style={{ color: '#F5F0EB' }}>{dish.name}</h3>
+                        <p className="text-sm truncate" style={{ color: '#8B8B8B' }}>{dish.partnerName}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-purple-600 font-bold">₹{parseFloat(dish.price).toFixed(0)}</span>
+                          <span className="font-bold" style={{ color: '#CCFF00', fontFamily: 'var(--font-mono)' }}>
+                            ₹{parseFloat(dish.price).toFixed(0)}
+                          </span>
                           {dish.partnerRating && (
-                            <span className="flex items-center gap-1 text-xs text-gray-500">
-                              <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                            <span className="flex items-center gap-1 text-xs" style={{ color: '#8B8B8B' }}>
+                              <Star className="w-3 h-3" style={{ color: '#FFB300', fill: '#FFB300' }} />
                               {dish.partnerRating}
                             </span>
                           )}
@@ -163,12 +184,12 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               ) : hasSearched && query ? (
                 <div className="text-center py-12">
                   <span className="text-4xl mb-4 block">🔍</span>
-                  <p className="text-gray-500">No dishes found for "{query}"</p>
+                  <p style={{ color: '#8B8B8B' }}>No dishes found for &ldquo;{query}&rdquo;</p>
                 </div>
               ) : (
                 <div className="text-center py-12">
                   <span className="text-4xl mb-4 block">🍽️</span>
-                  <p className="text-gray-500">Search for your favorite dishes</p>
+                  <p style={{ color: '#8B8B8B' }}>Search for your favorite dishes</p>
                 </div>
               )}
             </div>

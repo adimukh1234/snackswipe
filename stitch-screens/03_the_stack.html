@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crave - The Stack</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Satoshi:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#CCFF00", // Acid Lime from PRD
+                        "void": "#000000",
+                        "midnight": "#1A1A1A",
+                        "raspberry": "#FF2E63",
+                        "bone": "#F5F5F5",
+                        "concrete": "#888888",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Satoshi", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    },
+                    boxShadow: {
+                        'neon': '0 0 20px rgba(204, 255, 0, 0.15)',
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.8)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar Hide */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(26, 26, 26, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Scrim Gradient */
+        .scrim-gradient {
+            background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0.8) 30%, transparent 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-void text-bone h-screen w-full overflow-hidden flex flex-col antialiased selection:bg-primary selection:text-void">
+<!-- Top Bar -->
+<header class="fixed top-0 left-0 right-0 z-50 px-5 pt-6 pb-2 flex items-center justify-between bg-gradient-to-b from-void/90 to-transparent">
+<h1 class="font-display font-bold text-3xl tracking-tight text-white">Crave</h1>
+<button class="flex items-center gap-2 bg-midnight/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5 active:scale-95 transition-transform duration-200">
+<span class="text-primary material-symbols-outlined text-[20px]">shopping_bag</span>
+<span class="font-mono text-xs font-medium text-bone">STASH (0)</span>
+</button>
+</header>
+<!-- Main Content Area: The Stack -->
+<main class="relative flex-1 w-full h-full flex flex-col items-center justify-center p-4">
+<!-- Background Stack Effect (Visual depth) -->
+<div class="absolute w-[85%] h-[60%] bg-midnight rounded-[2rem] opacity-40 translate-y-8 scale-90 z-0 border border-white/5"></div>
+<div class="absolute w-[90%] h-[65%] bg-midnight rounded-[2rem] opacity-70 translate-y-4 scale-95 z-10 border border-white/5 shadow-2xl"></div>
+<!-- Active Card -->
+<div class="relative w-full max-w-md h-full max-h-[75vh] bg-midnight rounded-[2rem] overflow-hidden shadow-card z-20 group cursor-grab active:cursor-grabbing border border-white/5">
+<!-- Dish Image -->
+<div class="absolute inset-0 w-full h-full">
+<img alt="Close up high resolution shot of spicy miso ramen with egg and pork belly" class="w-full h-full object-cover object-center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLv9DKkPqTwshOwaa29U08MFwUcUsfiLMgdhVZm00oTssW_RHnEc26ZrzTE4sUuRrWWk2JfXWOUPRv3qm44lkEOkIlLRAcBaJ0O7qBusoniwSVdVv98MOGvyiEgs-eO36Wyjo3Z2u0SsEbV76Mf4WL6R4lMkPGdwyINfR7qYRurEgkzqfXYA_MNkMArpNqHb2jVwAL1kzUXwGZ-F5iJ7rkY3lMUakjM1VvckE6lVy5cEyD6z0EJOynIDf3xaSkuowYAXymJo_u-IQc"/>
+</div>
+<!-- Top Overlay Actions (Like/Pass Indicators hidden by default, shown on swipe) -->
+<div class="absolute top-6 left-6 opacity-0 -rotate-12 pointer-events-none transition-opacity duration-200 group-hover:opacity-0">
+<div class="border-4 border-primary text-primary px-4 py-1 rounded-lg font-display font-bold text-4xl tracking-wide uppercase shadow-neon">CRAVE</div>
+</div>
+<div class="absolute top-6 right-6 opacity-0 rotate-12 pointer-events-none transition-opacity duration-200 group-hover:opacity-0">
+<div class="border-4 border-raspberry text-raspberry px-4 py-1 rounded-lg font-display font-bold text-4xl tracking-wide uppercase">NOPE</div>
+</div>
+<!-- Content Scrim -->
+<div class="absolute bottom-0 left-0 right-0 h-1/2 scrim-gradient flex flex-col justify-end p-6 pb-8 pointer-events-none">
+<!-- Restaurant Tag -->
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-[18px] filled">storefront</span>
+<span class="font-mono text-primary text-xs uppercase tracking-wider font-bold">Ramen Bar IO</span>
+</div>
+<!-- Dish Title -->
+<h2 class="font-display font-bold text-3xl leading-tight text-white mb-3 shadow-black drop-shadow-lg">
+                    Spicy Miso Ramen
+                </h2>
+<!-- Meta Data -->
+<div class="flex items-center gap-3 font-mono text-sm text-bone/90 bg-black/40 backdrop-blur-sm w-fit px-3 py-1.5 rounded-lg border border-white/10">
+<span>$14.00</span>
+<span class="text-white/20">|</span>
+<span>0.4 mi</span>
+<span class="text-white/20">|</span>
+<div class="flex items-center gap-1 text-primary">
+<span>4.8</span>
+<span class="material-symbols-outlined text-[14px] font-variation-FILL">star</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Controls -->
+<div class="fixed bottom-0 left-0 right-0 p-6 pb-8 z-50 flex items-center justify-center gap-6 pointer-events-none">
+<!-- Pass Button -->
+<button aria-label="Pass" class="pointer-events-auto w-16 h-16 rounded-full bg-midnight/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-raspberry hover:bg-raspberry/20 hover:scale-110 active:scale-90 transition-all duration-300 shadow-lg group">
+<span class="material-symbols-outlined text-[32px] font-bold group-hover:rotate-90 transition-transform">close</span>
+</button>
+<!-- Info Pill -->
+<button class="pointer-events-auto h-12 px-6 rounded-full glass-panel flex items-center gap-2 text-bone hover:bg-white/10 active:scale-95 transition-all duration-200 shadow-lg">
+<span class="material-symbols-outlined text-[20px] text-primary">info</span>
+<span class="font-display font-bold text-sm tracking-wide">DETAILS</span>
+</button>
+<!-- Crave Button -->
+<button aria-label="Crave" class="pointer-events-auto w-16 h-16 rounded-full bg-midnight/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-primary hover:bg-primary/20 hover:scale-110 active:scale-90 transition-all duration-300 shadow-lg shadow-primary/10 group">
+<span class="material-symbols-outlined text-[32px] font-variation-FILL group-hover:scale-110 transition-transform">favorite</span>
+</button>
+</div>
+<!-- Vignette Effects (Subtle color bleeding on edges for atmosphere) -->
+<div class="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-raspberry/5 via-transparent to-transparent opacity-50"></div>
+<div class="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_bottom_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-50"></div>
+</body></html>

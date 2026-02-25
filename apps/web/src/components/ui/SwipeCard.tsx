@@ -31,12 +31,12 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   
-  // Rotation based on horizontal drag - subtle and natural
+  // Rotation based on horizontal drag
   const rotate = useTransform(x, [-400, 0, 400], [-15, 0, 15]);
   
-  // Overlay opacity - smooth gradient appearance
-  const likeOpacity = useTransform(x, [0, 60, 150], [0, 0.6, 1]);
-  const nopeOpacity = useTransform(x, [-150, -60, 0], [1, 0.6, 0]);
+  // Overlay opacity — CRAVE (acid lime) and PASS (raspberry)
+  const craveOpacity = useTransform(x, [0, 60, 150], [0, 0.6, 1]);
+  const passOpacity = useTransform(x, [-150, -60, 0], [1, 0.6, 0]);
   const superLikeOpacity = useTransform(y, [-150, -60, 0], [1, 0.6, 0]);
   
   // Scale effect during drag
@@ -46,6 +46,10 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
     [0.97, 1, 0.97]
   );
 
+  // Background glow intensity based on swipe direction
+  const craveGlow = useTransform(x, [0, 100, 200], [0, 0.15, 0.35]);
+  const passGlow = useTransform(x, [-200, -100, 0], [0.35, 0.15, 0]);
+
   // Exit animations
   const performSwipe = useCallback((direction: 'left' | 'right' | 'up') => {
     setIsExiting(true);
@@ -54,7 +58,6 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
     const exitY = direction === 'up' ? -1200 : 0;
     const exitRotate = direction === 'right' ? 25 : direction === 'left' ? -25 : 0;
     
-    // Animate out with satisfying spring
     animate(x, exitX, { 
       type: 'spring', 
       stiffness: 400, 
@@ -73,7 +76,6 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
       animate(rotate, exitRotate);
     }
     
-    // Trigger callback after animation starts
     setTimeout(() => {
       if (direction === 'left') onSwipeLeft?.();
       else if (direction === 'right') onSwipeRight?.();
@@ -81,7 +83,6 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
     }, 150);
   }, [onSwipeLeft, onSwipeRight, onSuperLike, x, y, rotate]);
 
-  // Expose swipe methods to parent via ref
   useImperativeHandle(ref, () => ({
     swipeLeft: () => performSwipe('left'),
     swipeRight: () => performSwipe('right'),
@@ -89,7 +90,6 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
   }), [performSwipe]);
 
   const handleDrag = useCallback((event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    // Determine current swipe direction for visual feedback
     let direction: SwipeDirection = null;
     if (Math.abs(info.offset.x) > Math.abs(info.offset.y)) {
       direction = info.offset.x > 30 ? 'right' : info.offset.x < -30 ? 'left' : null;
@@ -105,10 +105,7 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
     
     const absX = Math.abs(info.offset.x);
     const absY = Math.abs(info.offset.y);
-    const absVelX = Math.abs(info.velocity.x);
-    const absVelY = Math.abs(info.velocity.y);
     
-    // Determine swipe direction based on offset and velocity
     const shouldSwipeRight = (info.offset.x > threshold || info.velocity.x > velocityThreshold);
     const shouldSwipeLeft = (info.offset.x < -threshold || info.velocity.x < -velocityThreshold);
     const shouldSuperLike = (info.offset.y < -threshold || info.velocity.y < -velocityThreshold) && absY > absX * 0.7;
@@ -120,7 +117,6 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
     } else if (shouldSwipeLeft && absX > absY) {
       performSwipe('left');
     } else {
-      // Spring back to center with bounce
       animate(x, 0, { type: 'spring', stiffness: 600, damping: 30 });
       animate(y, 0, { type: 'spring', stiffness: 600, damping: 30 });
     }
@@ -145,53 +141,98 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
       onDragEnd={handleDragEnd}
       whileTap={{ cursor: 'grabbing' }}
     >
-      {/* LIKE Indicator */}
+      {/* CRAVE Stamp — Acid Lime (Brutalist) */}
       <motion.div
-        className="absolute top-8 left-6 z-30 pointer-events-none"
-        style={{ opacity: likeOpacity }}
+        className="absolute top-16 left-6 z-30 pointer-events-none"
+        style={{ opacity: craveOpacity }}
       >
-        <motion.div 
-          className="px-6 py-3 bg-gradient-to-br from-green-400 to-green-500 text-white font-black text-3xl uppercase tracking-wider rounded-2xl border-4 border-green-300 shadow-2xl"
+        <div 
+          className="px-5 py-2 border-[3px] rounded-lg"
           style={{ 
-            rotate: -12,
-            boxShadow: '0 20px 40px rgba(34, 197, 94, 0.4), inset 0 2px 0 rgba(255,255,255,0.3)'
+            borderColor: '#CCFF00', 
+            rotate: '-15deg',
+            boxShadow: '0 0 20px rgba(204, 255, 0, 0.3)',
           }}
         >
-          LIKE
-        </motion.div>
+          <span 
+            className="font-black text-3xl uppercase tracking-[0.2em]"
+            style={{ 
+              color: '#CCFF00',
+              fontFamily: 'var(--font-display)',
+              textShadow: '0 0 10px rgba(204, 255, 0, 0.5)',
+            }}
+          >
+            CRAVE
+          </span>
+        </div>
       </motion.div>
       
-      {/* NOPE Indicator */}
+      {/* PASS Stamp — Raspberry (Brutalist) */}
       <motion.div
-        className="absolute top-8 right-6 z-30 pointer-events-none"
-        style={{ opacity: nopeOpacity }}
+        className="absolute top-16 right-6 z-30 pointer-events-none"
+        style={{ opacity: passOpacity }}
       >
-        <motion.div 
-          className="px-6 py-3 bg-gradient-to-br from-red-400 to-red-500 text-white font-black text-3xl uppercase tracking-wider rounded-2xl border-4 border-red-300 shadow-2xl"
+        <div 
+          className="px-5 py-2 border-[3px] rounded-lg"
           style={{ 
-            rotate: 12,
-            boxShadow: '0 20px 40px rgba(239, 68, 68, 0.4), inset 0 2px 0 rgba(255,255,255,0.3)'
+            borderColor: '#FF2E63', 
+            rotate: '15deg',
+            boxShadow: '0 0 20px rgba(255, 46, 99, 0.3)',
           }}
         >
-          NOPE
-        </motion.div>
+          <span 
+            className="font-black text-3xl uppercase tracking-[0.2em]"
+            style={{ 
+              color: '#FF2E63',
+              fontFamily: 'var(--font-display)',
+              textShadow: '0 0 10px rgba(255, 46, 99, 0.5)',
+            }}
+          >
+            PASS
+          </span>
+        </div>
       </motion.div>
       
-      {/* SUPER LIKE Indicator */}
+      {/* SUPER Stamp — Acid Lime Vertical (Brutalist) */}
       <motion.div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"
+        className="absolute bottom-32 left-1/2 -translate-x-1/2 z-30 pointer-events-none"
         style={{ opacity: superLikeOpacity }}
       >
-        <motion.div 
-          className="px-8 py-4 bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 text-white font-black text-2xl uppercase tracking-wider rounded-2xl border-4 border-purple-300 shadow-2xl flex items-center gap-3"
+        <div 
+          className="px-5 py-2 border-[3px] rounded-lg"
           style={{ 
-            boxShadow: '0 25px 50px rgba(168, 85, 247, 0.5), inset 0 2px 0 rgba(255,255,255,0.3)'
+            borderColor: '#CCFF00',
+            boxShadow: '0 0 30px rgba(204, 255, 0, 0.4)',
           }}
         >
-          <span className="text-3xl">⭐</span>
-          SUPER LIKE
-        </motion.div>
+          <span 
+            className="font-black text-2xl uppercase tracking-[0.2em]"
+            style={{ 
+              color: '#CCFF00',
+              fontFamily: 'var(--font-display)',
+              textShadow: '0 0 15px rgba(204, 255, 0, 0.6)',
+            }}
+          >
+            SUPER
+          </span>
+        </div>
       </motion.div>
+
+      {/* Edge glow effects */}
+      <motion.div 
+        className="absolute inset-0 z-20 pointer-events-none rounded-[28px]"
+        style={{ 
+          opacity: craveGlow,
+          boxShadow: 'inset 0 0 60px rgba(204, 255, 0, 0.3), 0 0 30px rgba(204, 255, 0, 0.15)',
+        }}
+      />
+      <motion.div 
+        className="absolute inset-0 z-20 pointer-events-none rounded-[28px]"
+        style={{ 
+          opacity: passGlow,
+          boxShadow: 'inset 0 0 60px rgba(255, 46, 99, 0.3), 0 0 30px rgba(255, 46, 99, 0.15)',
+        }}
+      />
       
       {children}
     </motion.div>
@@ -200,7 +241,7 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
 
 SwipeCard.displayName = 'SwipeCard';
 
-// Card Stack Component - manages the visual stack effect
+// Card Stack Component
 interface CardStackProps {
   children: React.ReactNode[];
   onSwipeLeft?: (index: number) => void;
@@ -210,7 +251,7 @@ interface CardStackProps {
 
 export function CardStack({ children, onSwipeLeft, onSwipeRight, onSuperLike }: CardStackProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const visibleCards = 3; // Number of stacked cards to show
+  const visibleCards = 3;
 
   return (
     <div className="relative w-full h-full">
@@ -219,7 +260,6 @@ export function CardStack({ children, onSwipeLeft, onSwipeRight, onSuperLike }: 
         const isTop = i === 0;
         const stackIndex = i;
         
-        // Calculate stack offset and scale
         const yOffset = stackIndex * 8;
         const scale = 1 - stackIndex * 0.04;
         const opacity = 1 - stackIndex * 0.15;

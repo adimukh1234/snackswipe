@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crave - Taste Profile</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Satoshi:wght@400;500;700&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "void": "#000000",
+              "midnight": "#1A1A1A",
+              "acid": "#CCFF00",
+              "raspberry": "#FF2E63",
+              "bone": "#F5F5F5",
+              "concrete": "#888888",
+              "primary": "#CCFF00", // Mapping Acid Lime to primary for consistency
+              "background-light": "#f8f8f5", // Fallback
+              "background-dark": "#000000", // Void
+            },
+            fontFamily: {
+              "display": ["Space Grotesk", "sans-serif"],
+              "body": ["Satoshi", "sans-serif"],
+              "mono": ["JetBrains Mono", "monospace"],
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        /* Custom Utilities */
+        .glass-panel {
+            background: rgba(26, 26, 26, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Bubble Animation */
+        .bubble-transition {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        /* Neon Glow for selected items */
+        .neon-border {
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-void text-slate-900 dark:text-bone font-body antialiased overflow-hidden h-screen w-full relative selection:bg-acid selection:text-void">
+<!-- Background Ambience -->
+<div class="fixed inset-0 pointer-events-none z-0">
+<div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-acid/5 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-raspberry/5 rounded-full blur-[100px]"></div>
+</div>
+<!-- Main Container -->
+<div class="relative z-10 flex flex-col h-full w-full max-w-md mx-auto bg-transparent">
+<!-- Header Section -->
+<header class="pt-8 px-6 pb-4 shrink-0 flex flex-col gap-2">
+<!-- Progress / Step Indicator -->
+<div class="flex gap-2 mb-4">
+<div class="h-1 w-8 bg-acid rounded-full"></div>
+<div class="h-1 w-8 bg-midnight rounded-full"></div>
+<div class="h-1 w-8 bg-midnight rounded-full"></div>
+</div>
+<h1 class="text-4xl md:text-5xl font-display font-bold tracking-tight text-bone leading-[0.9]">
+                What's<br/>the vibe?
+            </h1>
+<p class="text-concrete font-mono text-xs uppercase tracking-widest mt-2">
+                Select at least 3 to start
+            </p>
+</header>
+<!-- Scrollable Grid Area -->
+<main class="flex-1 overflow-y-auto hide-scrollbar px-4 pb-32">
+<div class="grid grid-cols-3 gap-y-8 gap-x-4 place-items-center py-4">
+<!-- Item 1: Burger (Selected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-acid neon-border bubble-transition transform scale-105">
+<img alt="Juicy cheeseburger close up" class="w-full h-full object-cover brightness-110" data-alt="Juicy cheeseburger with melted cheese and shiny bun close up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJa7m8ZbgyCLXWwUD3x36g0CPo2GXjWhcd4SdAsmH-CVCNlIWe6hTFzMSK0z72Yra3RRkl0J0u-HKPKV2VWjBR-T_tIQk6K5_Y5s3XrQea3sw12Gn3pbPwkjPFWGu5sANxDV2R2z_OlHpjHhpFLtXStoSL06ouGWfta7Mya1_2yWCEn2XjkgNmUZBvk_H4DK-nJVH_mKsHW01lFlQFLKFn_eHDSWpcOwILeKpd4n-q8y-WZM78ndEsEzOnxuboRKbSQ6GlwTyURXaH"/>
+<!-- Checkmark Overlay for selected -->
+<div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-acid text-4xl font-bold drop-shadow-md">check</span>
+</div>
+</div>
+<span class="font-display font-bold text-bone text-sm tracking-wide">Burgers</span>
+</button>
+<!-- Item 2: Sushi (Unselected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-transparent opacity-60 grayscale-[0.5] bubble-transition group-hover:opacity-80 group-active:scale-95">
+<img alt="Fresh sushi rolls on dark plate" class="w-full h-full object-cover" data-alt="Colorful sushi rolls arranged artistically on a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXgpaLWV1QmajalgqR1wtj6nkCJGAMvnLwqxG7OLBiP-iboH-tYqWTG8Tz9WPTWDxeLtQ2GU-piTqEU3zE5icAj3nfLPasp3k8c3H9Quy0Wr3oi5HK-l1gY58VwjjrmgwA11ox9awpzSW4W1XrzZ-oT_NsHryFRgPbXZwgWZzq2uGB-lMj4weKe9E0Yp8vwYQPoJXfINPXQxYg1nMHhvjGcuOmsc7tAjmLrAWi3h3FovpigC8lULSWzuQRBmaj_LMU0iFIJkuWNXat"/>
+</div>
+<span class="font-display font-medium text-concrete text-sm tracking-wide group-hover:text-bone transition-colors">Sushi</span>
+</button>
+<!-- Item 3: Pizza (Selected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-acid neon-border bubble-transition transform scale-105">
+<img alt="Pepperoni pizza slice cheese pull" class="w-full h-full object-cover brightness-110" data-alt="Hot pepperoni pizza with melting cheese close up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfkzInWh-yzvcjKZI9ELQ2bbtCjKWgGsx8fwFak3VyN8FB0K_OsMt5WpexTAimtqfOpPEKFLp-_jG7iaUBd6oOvT0rEFw0CMRTFQCxU-xYtk3zKiR10NeZju_NJlituueIT_KZNnAG1j110XRqxr-kcu82SgmrgtLEbRPGxn-WOGps5IJDygW6wcEQEcGxxB1pEuh086XaFtKvjkYCdKYcJVD9UUbnL9_gPn9cfq-XVVCMzJ3uJNit9LvoX43M-hWCU-1zzeucuPbd"/>
+<div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-acid text-4xl font-bold drop-shadow-md">check</span>
+</div>
+</div>
+<span class="font-display font-bold text-bone text-sm tracking-wide">Pizza</span>
+</button>
+<!-- Item 4: Tacos (Unselected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-transparent opacity-60 grayscale-[0.5] bubble-transition group-hover:opacity-80 group-active:scale-95">
+<img alt="Street tacos with lime and cilantro" class="w-full h-full object-cover" data-alt="Authentic street tacos with fresh cilantro and lime wedges" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAGzBFov5t6HVh5z0z-I-3Ngk3jGwYxifPxBdDQgdrA9T-VOw_xVpdKR7EaBxYiolwqauNYcsdSf5P8oFSTYzSeMulkXy_Y4dIRp60V8-YKiRFXswfuCUtgwhBbbktPS30qXjp8-2jwiR0W4SOWPGT-V3UfMmivjolYL7-qewaR5a1n4nEFUi5ymikY3DLoD5c_Etk18egHH6y7NpbrUA2Gx65rryg-Rk-LBbjI0WCYyVi6p-1WLRaabM-5ho-eNgRD6In6wWGGT5M"/>
+</div>
+<span class="font-display font-medium text-concrete text-sm tracking-wide group-hover:text-bone transition-colors">Mexican</span>
+</button>
+<!-- Item 5: Ramen (Selected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-acid neon-border bubble-transition transform scale-105">
+<img alt="Spicy ramen bowl with egg" class="w-full h-full object-cover brightness-110" data-alt="Hot ramen noodle bowl with spicy broth and soft boiled egg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpRKyjEQEbEpY7JE936I_coZ9GsD8MJOdxFdGkYpeq3JHHBvIQFl-qQI9-4-33f5vmZdmit1OW4nrqzAaakAKqhC-BKLfyxjGrntT-ctLTYKIdIttRx4GkxFmFvgrc1XA-8xoTzj0EqsQtyoTna3lLACTecE3r8wJ0jsavDyRSyGntLCcPUTG0weFAeyFxvDLJKo6ELuBLCQbJxHdyncmzSWsiDx9ZJeW87XcwoGIVmuuL34Or0sDbSS0RiQQUmRFhSD8RdsAz1MkO"/>
+<div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-acid text-4xl font-bold drop-shadow-md">check</span>
+</div>
+</div>
+<span class="font-display font-bold text-bone text-sm tracking-wide">Ramen</span>
+</button>
+<!-- Item 6: Healthy (Unselected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-transparent opacity-60 grayscale-[0.5] bubble-transition group-hover:opacity-80 group-active:scale-95">
+<img alt="Healthy green salad bowl" class="w-full h-full object-cover" data-alt="Fresh green salad bowl with avocado and vegetables" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCERne2_yTUn_9WzLseGF6oFqiPeEX7Gq5eJS7-j8MYzfVQn8org-k0tbFUIDE04fRLfgYaEgzKjwFdrPALBStCTXz-AcYgtswGWilH8cHt5NJ9p2kZqGyDneQ5PggZ8CxcKiROsJ482JBTo0WEHt2HdGiNnfzKEI2iWVc7a0W5EaEecBJwpBQNS5hWHRoZn80jDA0AAXbGqDCACS5vByrj9xzI9-6jTw1MuzMwH2WsMxYZB-DmGRFPSbJf0YFdUIS8_WSACCvhpnOV"/>
+</div>
+<span class="font-display font-medium text-concrete text-sm tracking-wide group-hover:text-bone transition-colors">Healthy</span>
+</button>
+<!-- Item 7: Indian (Unselected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-transparent opacity-60 grayscale-[0.5] bubble-transition group-hover:opacity-80 group-active:scale-95">
+<img alt="Butter chicken curry with naan" class="w-full h-full object-cover" data-alt="Rich butter chicken curry served in a copper bowl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTCZnarsmVXUK_ozrJzsfrd-9M_JJOcHI6fKY-4C3b0Oap7YV2DNse8AR1ApMRmMcZO5SDyzTIB0O6REzNecm-nnNfnJ88pMHTnHmhOFk7_Q-1tX9wvg749bN70f_3N4-xL0vXk7vVkZGCBhQttzvo2N1LPxcfaljqdsgrpP0-sG08EOoJVOlB0bem-A4-1ftknwbBpM3_-cIZ2iIpuDk31DfnErg0JZ4NjtkIFytzDy7kGW5w1iFJtY3SHAuj7Q8C9G18ICCpdsy0"/>
+</div>
+<span class="font-display font-medium text-concrete text-sm tracking-wide group-hover:text-bone transition-colors">Indian</span>
+</button>
+<!-- Item 8: Dessert (Unselected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-transparent opacity-60 grayscale-[0.5] bubble-transition group-hover:opacity-80 group-active:scale-95">
+<img alt="Chocolate lava cake" class="w-full h-full object-cover" data-alt="Decadent chocolate dessert with powdered sugar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbc4XqXLKIR_dvaUWrounBKr2eMniBEm9eb3UTBu_IaXQwUemtLY8_f21kvu2SJN6KGsXbxF1Iv-uTsOrOz0fHOvXOB2cC6trC-2qobSqp3GBybb9Xd8SLgYfMZuksH09IG7ujDysHzmy24Mim1oqNm66P-5Yr0H8UFRzPKKhGM9tASVsALtWTAjD4ZgtsuN2BbMzPxetpu3hRwigGoy-2SzzEXQWsXIXmecrqWnfTocB_MtLiuQR3MxJhFYePwkX5lC7oAUP2ZXaj"/>
+</div>
+<span class="font-display font-medium text-concrete text-sm tracking-wide group-hover:text-bone transition-colors">Dessert</span>
+</button>
+<!-- Item 9: Coffee (Unselected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-transparent opacity-60 grayscale-[0.5] bubble-transition group-hover:opacity-80 group-active:scale-95">
+<img alt="Latte art coffee cup" class="w-full h-full object-cover" data-alt="Artistic latte art in a ceramic coffee cup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8JV-EtuIYo6IZeQApARxolkX2aMQdRv9b0pOgTb6cCuiUhR6XRsJyCxcPq5BEcC9BnJD0HoeGStWGjgzqo67Uxao7qw3ahyWgOu-J8GrF2z5H201z5qghAJYX1LmEet4nBBFR5yRLDMUraM9D0eFgwjRNUV80do2o0_GsMv9uyo6CV3jXqsA13ayRFcJbHutijFOjvotgRdJeSKKhtb5Ja4y-SnE09QFBHBoLpL5bqw9E5KrhoD2FGqtCoqbse0FdbnUBveGAZz8Z"/>
+</div>
+<span class="font-display font-medium text-concrete text-sm tracking-wide group-hover:text-bone transition-colors">Coffee</span>
+</button>
+<!-- Item 10: Thai (Unselected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-transparent opacity-60 grayscale-[0.5] bubble-transition group-hover:opacity-80 group-active:scale-95">
+<img alt="Pad Thai noodles" class="w-full h-full object-cover" data-alt="Classic Pad Thai noodles with shrimp and peanuts" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAO4iaqbNcMT_jLlOwQa2YjFNdTSrPhu8wVARYx3pM3wGTwQ6hMp5euK6OR0AfA0lOEHCOhSEJxq9NF6B3ol3r_EJeUPk2TK83vFDjOAO7wf4zvDhzby47hlmxtEsZ9_NDc5cmqjCB8BXFglBDSCy44MaBcxAHVFzfa_c65mM9ncjL4qTx4aL2VmGLuKZKQdTT_4DNtqKhYGQBr0W1dgbJ73Jbga_1fIP4NHRcI5eXWJKc_hChm5eI9AIo4oPpYIr1xOgkid4e1iH9R"/>
+</div>
+<span class="font-display font-medium text-concrete text-sm tracking-wide group-hover:text-bone transition-colors">Thai</span>
+</button>
+<!-- Item 11: Fried Chicken (Unselected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-transparent opacity-60 grayscale-[0.5] bubble-transition group-hover:opacity-80 group-active:scale-95">
+<img alt="Crispy fried chicken bucket" class="w-full h-full object-cover" data-alt="Golden crispy fried chicken pieces piled high" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAj3HN0O3PH7TSDZwNbQAU5IcerzQak3T_fm2lD7SagoHwxmmTEBI09-nb0vpFP46ggdg7rZigr48y7ASR--m8K9qWgbK9QcmtENba3nuaBofp3eZAIgA9lHhmIianKOaDpuumKCW22Y6Sv0R3y_tG2qCmhD1p3G5LufcbU3pVmB3tBMUqTnZBHBE9zmJzbyEZF6gW45hJ2vcWyTmRmRn6oWH4m3zrZ1SIjfZHMx84n-yKZ7JOYrDR_TUf1VUJe0cienLXSlpE3p9B"/>
+</div>
+<span class="font-display font-medium text-concrete text-sm tracking-wide group-hover:text-bone transition-colors">Fried Chix</span>
+</button>
+<!-- Item 12: Dim Sum (Unselected) -->
+<button class="group relative flex flex-col items-center gap-3 w-full max-w-[110px]">
+<div class="relative w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-transparent opacity-60 grayscale-[0.5] bubble-transition group-hover:opacity-80 group-active:scale-95">
+<img alt="Dim sum steamer basket" class="w-full h-full object-cover" data-alt="Bamboo steamer basket filled with dumplings" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3cheoBm_pQpUl-KoI46OZBMFI4hbdwYcSO1NdNQPofTUOGjj02atrtGiADc0gxpk4bftT1EOHv-P3QQKHzmOHq59S-4TaXcl9M5s4PHW5S636V6y6WV1SV_rsLaNDKLv857BTEVOYAivLGhQBeU_KMvVhdTZ0Emkyu_BHrs3jAupxl-xGlInFHxd11uEUiARvcVS_Zp1_7-fbd6n_gORYREmvUKpQVdcn7RQGsUCi99xWq-EfnLipWJMJCJreycwnKQc_HfKxpzVM"/>
+</div>
+<span class="font-display font-medium text-concrete text-sm tracking-wide group-hover:text-bone transition-colors">Dim Sum</span>
+</button>
+</div>
+</main>
+<!-- Sticky Footer Action -->
+<div class="fixed bottom-0 left-0 right-0 z-50">
+<!-- Gradient Fade for smooth scroll off -->
+<div class="h-24 w-full bg-gradient-to-t from-void via-void/90 to-transparent pointer-events-none absolute bottom-0"></div>
+<div class="relative px-6 pb-8 pt-4 w-full max-w-md mx-auto">
+<button class="w-full bg-acid hover:bg-[#d9ff4d] active:scale-[0.98] transition-all duration-200 text-void font-display font-bold text-xl uppercase tracking-wider py-5 rounded-full shadow-[0_0_20px_rgba(204,255,0,0.4)] flex items-center justify-center gap-2 group">
+                    Feed Me
+                    <span class="material-symbols-outlined text-2xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

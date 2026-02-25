@@ -1,0 +1,224 @@
+# Crave: Immersive Food Swipe
+
+## Product Overview
+
+**The Pitch:** A visceral, high-velocity food discovery engine that bypasses endless scrolling. Users swipe through a hyper-curated stack of high-res "food porn" to build an order instinctively, turning decision fatigue into a game of desire.
+
+**For:** Hungry urbanites tired of reading menus who eat with their eyes first and want impulsive, frictionless ordering.
+
+**Device:** Mobile (PWA)
+
+**Design Direction:** "Midnight Bodega." Deep OLED blacks, neon signs in rain-slicked streets, brutalist typography, and uncomfortably delicious close-up photography.
+
+**Inspired by:** Tinder (mechanic), SnackPass (speed), Zenly (map visuals)
+
+---
+
+## Screens
+
+- **Taste Profile:** Rapid-fire selector for cuisines and dietary hard-stops.
+- **The Stack:** Edge-to-edge card interface for swiping dishes.
+- **Dish Anatomy:** Detailed view with ingredients and modifiers.
+- **The Stash:** Reviewing swiped items and finalizing the order.
+- **The Drop:** Live tracking with a retro-arcade map style.
+
+---
+
+## Key Flows
+
+**The Midnight Munchies:** Discovering and ordering late-night food.
+
+1. User opens app -> sees **The Stack** immediately (based on past history).
+2. User swipes right on *Spicy Miso Ramen* -> subtle haptic thud, "Added to Stash" toast.
+3. User taps "Stash" icon -> reviews cart, adds extra egg.
+4. User hits "Secure the Bag" -> payment processes, transitions to **The Drop**.
+
+---
+
+<details>
+<summary>Design System</summary>
+
+## Color Palette
+
+This palette is designed for OLED displays to minimize battery usage and maximize image pop.
+
+- **Primary:** `#000000` - "Void Black" (Backgrounds)
+- **Secondary:** `#1A1A1A` - "Midnight Gray" (Surface/Cards)
+- **Accent:** `#CCFF00` - "Acid Lime" (Primary Action/Swipe Right)
+- **Destructive:** `#FF2E63` - "Neon Raspberry" (Pass/Swipe Left)
+- **Text:** `#F5F5F5` - "Bone White" (Primary Text)
+- **Muted:** `#888888` - "Concrete" (Secondary Text/Icons)
+- **Overlay:** `linear-gradient(to top, #000000 0%, transparent 60%)`
+
+## Typography
+
+Moving away from friendly rounded sans. We want structure and edge.
+
+- **Headings:** **Space Grotesk**, 700. Angular, quirky, high impact.
+    - H1: 32px, -1px letter spacing (Main Titles)
+    - H2: 24px, -0.5px letter spacing (Dish Names)
+- **Body:** **Satoshi**, 500. Clean but geometric.
+    - Body: 16px, 140% line height.
+    - Detail: 14px, 150% line height.
+- **UI:** **JetBrains Mono**, 500. Technical, utilitarian feel for prices and distances.
+    - Label: 12px, uppercase, 1px letter spacing.
+
+**Style Notes:**
+- **Glassmorphism:** Heavy blur (backdrop-filter: blur(20px)) on floating UI elements to maintain context without obscuring food.
+- **Micro-interactions:** Snappy, elastic animations (spring physics) rather than linear fades.
+
+## Design Tokens
+
+```css
+:root {
+  --color-void: #000000;
+  --color-midnight: #1A1A1A;
+  --color-acid: #CCFF00;
+  --color-raspberry: #FF2E63;
+  --color-bone: #F5F5F5;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Satoshi', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-card: 24px;
+  --radius-button: 999px;
+}
+```
+
+</details>
+
+---
+
+<details>
+<summary>Screen Specifications</summary>
+
+### 1. Taste Profile (Onboarding)
+
+**Purpose:** Seed the algorithm rapidly without boring forms.
+
+**Layout:** Grid of circular image bubbles filling the screen.
+
+**Key Elements:**
+- **Header:** "What's the vibe?" (H1, Space Grotesk, Left aligned).
+- **Bubble Grid:** 3-column grid. Each item is a 100px circle with an image + label overlay.
+    - Selected state: `3px` Acid Lime border, image darkens.
+- **Sticky Footer:** "Feed Me" button. Full width.
+
+**States:**
+- **Default:** Unselected bubbles have 60% opacity.
+- **Selected:** 100% opacity + border.
+
+**Interactions:**
+- **Tap Bubble:** Toggle selection, scale animation (0.95 -> 1.05).
+
+---
+
+### 2. The Stack (Home)
+
+**Purpose:** Core loop. High-speed decision making.
+
+**Layout:** Full-screen carousel (Z-stack).
+
+**Key Elements:**
+- **Dish Card:** 
+    - Dimensions: `calc(100vh - 120px)`.
+    - Content: Full bleed image.
+    - **Bottom Overlay:** Gradient scrim up 40% of card.
+        - Text: Dish Name (H2, White), Restaurant (Mono, 12px, Acid Lime).
+        - Meta: Price | Distance | Rating (Flex row, Mono, 12px, White).
+- **Controls (Floating Bottom):** 
+    - **Pass (X):** Left, 64px circle, Midnight Gray bg, Raspberry icon.
+    - **Info (i):** Center, small pill, "View Details".
+    - **Crave (Heart):** Right, 64px circle, Midnight Gray bg, Acid Lime icon.
+- **Top Bar:** 
+    - Left: "Crave" Logo (Text).
+    - Right: "Stash" Icon with badge count (Mono font for number).
+
+**Interactions:**
+- **Swipe Right:** Card flies right + rotation. Screen flashes subtle Green vignette. Add to Stash.
+- **Swipe Left:** Card flies left + rotation. Screen flashes subtle Red vignette.
+- **Tap Card:** Transitions to **Dish Anatomy**.
+
+---
+
+### 3. Dish Anatomy (Detail)
+
+**Purpose:** Customization and validation before committing.
+
+**Layout:** Parallax scroll. Hero image top -> Content sheet slides up.
+
+**Key Elements:**
+- **Hero Image:** 50vh height. Sticky close button top-right (White circle).
+- **Content Sheet:** Slides up from bottom, overlaps image by 40px. `border-radius: 32px 32px 0 0`. background: Void Black.
+- **Title Block:** Dish Name (H1), Price (Mono, Acid Lime, 24px).
+- **Description:** 3 lines max, truncated with "more".
+- **Modifiers:**
+    - "Spice Level": Horizontal slider (Mono labels: Mild / Medium / Death).
+    - "Add-ons": Checkbox list (Midnight Gray rows, White text).
+- **Sticky CTA:** "Add to Stash - $18.50" (Acid Lime background, Black text, Space Grotesk Bold).
+
+**Interactions:**
+- **Scroll:** Image parallax effect (moves slower than content).
+- **Select Modifier:** Price updates instantly in CTA button.
+
+---
+
+### 4. The Stash (Cart)
+
+**Purpose:** Review and checkout.
+
+**Layout:** Standard list view but styled like a receipt.
+
+**Key Elements:**
+- **Header:** "The Damage" (H1).
+- **List Items:** 
+    - Layout: Thumbnail (Left, 64px sq, rounded), Text (Middle), Price (Right, Mono).
+    - Action: Swipe row left to delete (Red background reveals).
+- **Bill Breakdown:** Dashed line separator. Subtotal, Tax, Fee, Total (Mono font).
+- **Payment Method:** "Apple Pay" (Default).
+- **Checkout Button:** "Secure the Bag" (Slide-to-confirm interaction).
+
+**States:**
+- **Empty:** "Starving? Go swipe." (Centered text + Ghost icon).
+
+---
+
+### 5. The Drop (Tracking)
+
+**Purpose:** Anxiety reduction via gamified tracking.
+
+**Layout:** Full screen map with bottom sheet overlay.
+
+**Key Elements:**
+- **Map:** Dark mode map tiles (Mapbox Dark). Custom markers:
+    - User: Blue pulsing dot.
+    - Courier: 3D Pizza/Burger icon (scales with zoom).
+    - Route: Acid Lime polyline path.
+- **Status Card:** Floating bottom card (Midnight Gray).
+    - Progress Bar: Segmented neon line (Prep -> Pickup -> Transit -> Arrived).
+    - Driver Info: Photo (Circle), Name (H2), Car Model (Mono).
+    - ETA: Giant Mono text "12 MIN" (Acid Lime).
+
+**Interactions:**
+- **Driver Tap:** Opens modal to Call/Message.
+
+</details>
+
+---
+
+<details>
+<summary>Build Guide</summary>
+
+**Stack:** HTML5, Tailwind CSS v3, Vanilla JS (or React/Vue).
+
+**Tailwind Config:**
+Extend theme colors with `void`, `midnight`, `acid`, `raspberry`.
+Add fonts `space`, `satoshi`, `mono`.
+
+**Build Order:**
+1. **The Stack:** This is the MVP. Nail the card physics (use `use-gesture` or similar) and the gradient overlays first.
+2. **Design System:** Implement the typography scale and dark mode variables globally.
+3. **Dish Anatomy:** Reuse the card logic but expanding into a scroll view.
+4. **The Stash:** Simple state management for the cart.
+5. **The Drop:** Map integration (last priority, mock with static image for v1).
+
+</details>

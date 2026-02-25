@@ -9,8 +9,8 @@ import { useCartStore } from '@/stores/cartStore';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
-  { href: '/discover', icon: Compass, label: 'Discover' },
-  { href: '/cart', icon: ShoppingCart, label: 'Cart' },
+  { href: '/discover', icon: Compass, label: 'Stack' },
+  { href: '/cart', icon: ShoppingCart, label: 'Stash' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
 
@@ -20,8 +20,15 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50">
-      {/* Center nav within mobile container on desktop */}
-      <div className="max-w-[430px] mx-auto bg-white border-t border-gray-100 safe-bottom">
+      {/* Dark glassmorphism nav */}
+      <div className="max-w-[430px] mx-auto safe-bottom"
+        style={{
+          background: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+        }}
+      >
         <div className="flex items-center justify-around h-[72px] px-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -37,40 +44,50 @@ export function BottomNav() {
                 <motion.div
                   whileTap={{ scale: 0.85 }}
                   transition={{ duration: 0.1 }}
-                  className={cn(
-                    'flex flex-col items-center justify-center gap-1 transition-colors duration-150',
-                    isActive ? 'text-purple-600' : 'text-gray-400'
-                  )}
+                  className="flex flex-col items-center justify-center gap-1 transition-colors duration-150"
                 >
                   {isActive && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute -top-0.5 w-8 h-1 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"
+                      className="absolute -top-0.5 w-8 h-1 rounded-full"
+                      style={{
+                        background: '#CCFF00',
+                        boxShadow: '0 0 12px rgba(204, 255, 0, 0.5)',
+                      }}
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
                   <div className="relative">
                     <Icon 
                       className={cn(
-                        'w-6 h-6 transition-transform duration-150',
-                        isActive && 'scale-110'
+                        'w-6 h-6 transition-all duration-150',
+                        isActive ? 'scale-110' : ''
                       )} 
+                      style={{ color: isActive ? '#CCFF00' : '#8B8B8B' }}
                       strokeWidth={isActive ? 2.5 : 2}
                     />
                     {isCart && itemCount > 0 && (
                       <motion.span 
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 bg-purple-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white"
+                        className="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full flex items-center justify-center"
+                        style={{
+                          background: '#CCFF00',
+                          color: '#000000',
+                          boxShadow: '0 0 8px rgba(204, 255, 0, 0.4)',
+                        }}
                       >
                         {itemCount > 9 ? '9+' : itemCount}
                       </motion.span>
                     )}
                   </div>
-                  <span className={cn(
-                    'text-[10px] font-medium transition-all duration-150',
-                    isActive && 'font-semibold'
-                  )}>
+                  <span 
+                    className={cn(
+                      'text-[10px] transition-all duration-150',
+                      isActive ? 'font-bold' : 'font-medium'
+                    )}
+                    style={{ color: isActive ? '#CCFF00' : '#8B8B8B' }}
+                  >
                     {item.label}
                   </span>
                 </motion.div>
