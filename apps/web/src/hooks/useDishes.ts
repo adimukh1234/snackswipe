@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@clerk/nextjs';
 import { dishesApi, Dish } from '@/lib/api';
 
 // Query keys
@@ -63,6 +64,7 @@ export function useDish(id: string) {
 // Swipe mutation
 export function useSwipe() {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
   return useMutation({
     mutationFn: async ({
@@ -74,7 +76,8 @@ export function useSwipe() {
       action: 'like' | 'skip' | 'superlike';
       sessionId?: string;
     }) => {
-      const { data, error } = await dishesApi.swipe(dishId, action, sessionId);
+      const token = await getToken();
+      const { data, error } = await dishesApi.swipe(dishId, action, token ?? undefined, sessionId);
       if (error) throw new Error(error);
       return data;
     },

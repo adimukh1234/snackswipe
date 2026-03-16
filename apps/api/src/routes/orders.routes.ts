@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { db } from '../db';
 import { orders, dishes, foodPartners, cartItems } from '../db/schema';
 import { eq, desc, and } from 'drizzle-orm';
+import { verifyClerkAuth } from '../lib/clerk-auth';
 
 // Types
 interface CreateOrderBody {
@@ -18,6 +19,9 @@ interface CreateOrderBody {
     lat?: number;
     lng?: number;
   };
+  paymentMethod?: 'cod' | 'upi' | 'card';
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
 }
 
 interface OrderItem {
@@ -28,21 +32,10 @@ interface OrderItem {
   notes?: string;
 }
 
-// Auth middleware helper
-async function verifyAuth(request: FastifyRequest, reply: FastifyReply): Promise<string | null> {
-  try {
-    await request.jwtVerify();
-    return (request.user as { userId: string }).userId;
-  } catch (err) {
-    reply.status(401).send({ error: 'Unauthorized' });
-    return null;
-  }
-}
-
 export async function orderRoutes(fastify: FastifyInstance) {
   // Create a new order
   fastify.post('/', async (request: FastifyRequest<{ Body: CreateOrderBody }>, reply: FastifyReply) => {
-    const userId = await verifyAuth(request, reply);
+    const userId = await verifyClerkAuth(request, reply);
     if (!userId) return;
 
     const { items, deliveryAddress } = request.body;
@@ -124,7 +117,7 @@ export async function orderRoutes(fastify: FastifyInstance) {
 
   // Get user's order history
   fastify.get('/history', async (request: FastifyRequest<{ Querystring: { limit?: number } }>, reply: FastifyReply) => {
-    const userId = await verifyAuth(request, reply);
+    const userId = await verifyClerkAuth(request, reply);
     if (!userId) return;
 
     const { limit = 20 } = request.query;
@@ -151,7 +144,7 @@ export async function orderRoutes(fastify: FastifyInstance) {
 
   // Get single order details
   fastify.get('/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-    const userId = await verifyAuth(request, reply);
+    const userId = await verifyClerkAuth(request, reply);
     if (!userId) return;
 
     const { id } = request.params;
@@ -185,7 +178,7 @@ export async function orderRoutes(fastify: FastifyInstance) {
 
   // Cancel order (only if pending)
   fastify.post('/:id/cancel', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-    const userId = await verifyAuth(request, reply);
+    const userId = await verifyClerkAuth(request, reply);
     if (!userId) return;
 
     const { id } = request.params;
@@ -211,7 +204,7 @@ export async function orderRoutes(fastify: FastifyInstance) {
 
   // Reorder (create new order from existing)
   fastify.post('/:id/reorder', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-    const userId = await verifyAuth(request, reply);
+    const userId = await verifyClerkAuth(request, reply);
     if (!userId) return;
 
     const { id } = request.params;

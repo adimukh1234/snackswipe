@@ -1,13 +1,35 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Bell, ChevronRight, Loader2, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Bell, ArrowRight, Search } from 'lucide-react';
 import { SearchModal } from '@/components/SearchModal';
 import { DishDetailModal } from '@/components/DishDetailModal';
 import { useFeed } from '@/hooks/useDishes';
 import { Dish } from '@/lib/api';
 import Link from 'next/link';
+
+// Shimmer skeleton component
+function Shimmer({ className, style }: { className?: string; style?: React.CSSProperties }) {
+  return (
+    <div
+      className={`relative overflow-hidden ${className ?? ''}`}
+      style={style}
+    >
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)',
+          backgroundSize: '200% 100%',
+        }}
+        animate={{ backgroundPositionX: ['200%', '-200%'] }}
+        transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
+      />
+    </div>
+  );
+}
+
+const CATEGORIES = ['All', 'Pizza', 'Sushi', 'Burgers', 'Indian', 'Healthy', 'Desserts', 'Chinese'];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -30,8 +52,9 @@ export default function HomePage() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [isDishModalOpen, setIsDishModalOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('All');
 
-  const { data, isLoading } = useFeed({ limit: 12 });
+  const { data, isLoading } = useFeed({ limit: 12, category: activeCategory === 'All' ? undefined : activeCategory.toLowerCase() });
   const dishes = data?.dishes || [];
 
   const handleDishClick = (dish: Dish) => {
@@ -61,17 +84,28 @@ export default function HomePage() {
         >
           Crave
         </h1>
-        <div className="flex items-center gap-4">
-          <button 
+        <div className="flex items-center gap-3">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={() => setIsSearchOpen(true)}
             className="flex items-center justify-center p-2 rounded-full"
-            style={{ 
-              background: '#1a1a1a', 
+            style={{
+              background: '#1a1a1a',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <Search className="w-5 h-5 text-white" />
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            className="flex items-center justify-center p-2 rounded-full"
+            style={{
+              background: '#1a1a1a',
               border: '1px solid rgba(255, 255, 255, 0.1)',
             }}
           >
             <Bell className="w-5 h-5 text-white" />
-          </button>
+          </motion.button>
           <div 
             className="w-10 h-10 rounded-full overflow-hidden"
             style={{ border: '2px solid #CCFF00' }}
@@ -129,6 +163,37 @@ export default function HomePage() {
               </div>
             </motion.div>
           </Link>
+        </section>
+
+        {/* ═══ Category Chips ═══ */}
+        <section className="mb-8">
+          <div className="flex gap-3 overflow-x-auto px-6 hide-scrollbar pb-1">
+            {CATEGORIES.map((cat) => (
+              <motion.button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                whileTap={{ scale: 0.93 }}
+                className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider relative"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  color: activeCategory === cat ? '#000000' : '#8B8B8B',
+                  border: activeCategory === cat ? 'none' : '1px solid rgba(255,255,255,0.12)',
+                  background: activeCategory === cat ? '#CCFF00' : 'rgba(255,255,255,0.04)',
+                  transition: 'color 0.15s, background 0.15s',
+                }}
+              >
+                {activeCategory === cat && (
+                  <motion.span
+                    layoutId="categoryPill"
+                    className="absolute inset-0 rounded-full"
+                    style={{ background: '#CCFF00', zIndex: -1 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+                {cat}
+              </motion.button>
+            ))}
+          </div>
         </section>
 
         {/* ═══ Active Order Status ═══ */}
@@ -191,11 +256,11 @@ export default function HomePage() {
             {isLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex-shrink-0 w-32">
-                  <div 
-                    className="aspect-square rounded-lg mb-2 animate-pulse"
+                  <Shimmer
+                    className="aspect-square rounded-lg mb-2"
                     style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.1)' }}
                   />
-                  <div className="h-3 w-20 rounded animate-pulse" style={{ background: '#1a1a1a' }} />
+                  <Shimmer className="h-3 w-20 rounded" style={{ background: '#1a1a1a' }} />
                 </div>
               ))
             ) : recentCraves.length > 0 ? (
@@ -256,16 +321,16 @@ export default function HomePage() {
           >
             {isLoading ? (
               Array.from({ length: 2 }).map((_, i) => (
-                <div 
-                  key={i} 
-                  className="rounded-xl overflow-hidden animate-pulse"
+                <div
+                  key={i}
+                  className="rounded-xl overflow-hidden"
                   style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.05)' }}
                 >
-                  <div className="h-48 w-full" style={{ background: '#121212' }} />
+                  <Shimmer className="h-48 w-full" style={{ background: '#121212' }} />
                   <div className="p-4 space-y-3">
-                    <div className="h-5 w-40 rounded" style={{ background: '#121212' }} />
-                    <div className="h-3 w-32 rounded" style={{ background: '#121212' }} />
-                    <div className="h-10 w-full rounded" style={{ background: '#121212' }} />
+                    <Shimmer className="h-5 w-40 rounded" style={{ background: '#121212' }} />
+                    <Shimmer className="h-3 w-32 rounded" style={{ background: '#121212' }} />
+                    <Shimmer className="h-10 w-full rounded" style={{ background: '#121212' }} />
                   </div>
                 </div>
               ))

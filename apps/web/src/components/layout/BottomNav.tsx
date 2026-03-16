@@ -67,9 +67,12 @@ export function BottomNav() {
                       strokeWidth={isActive ? 2.5 : 2}
                     />
                     {isCart && itemCount > 0 && (
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
+                      <motion.span
+                        data-testid="cart-badge"
+                        key={itemCount}
+                        initial={{ scale: 1.6, y: -2 }}
+                        animate={{ scale: 1, y: 0 }}
+                        transition={{ type: 'spring', stiffness: 600, damping: 12 }}
                         className="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full flex items-center justify-center"
                         style={{
                           background: '#CCFF00',

@@ -4,7 +4,8 @@ import { relations } from 'drizzle-orm';
 // Users (Consumers)
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
-  phone: varchar('phone', { length: 15 }).unique().notNull(),
+  clerkId: varchar('clerk_id', { length: 100 }).unique(), // Clerk user ID (e.g. user_2abc)
+  phone: varchar('phone', { length: 15 }).unique(),
   email: varchar('email', { length: 255 }).unique(),
   name: varchar('name', { length: 100 }),
   avatarUrl: text('avatar_url'),
@@ -85,7 +86,7 @@ export const orders = pgTable('orders', {
   status: varchar('status', { length: 50 }).default('pending'),
   deliveryAddress: jsonb('delivery_address'),
   paymentId: varchar('payment_id', { length: 100 }),
-  porterOrderId: varchar('porter_order_id', { length: 100 }),
+  razorpayOrderId: varchar('razorpay_order_id', { length: 100 }),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

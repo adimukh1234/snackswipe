@@ -141,6 +141,7 @@ export default function OrdersPage() {
             return (
               <motion.div
                 key={order.id}
+                data-testid="order-card"
                 variants={itemVariants}
                 className="rounded-2xl overflow-hidden"
                 style={{

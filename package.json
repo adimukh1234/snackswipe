@@ -12,7 +12,8 @@
     "build:api": "cd apps/api && npm run build",
     "lint": "npm run lint:web && npm run lint:api",
     "lint:web": "cd apps/web && npm run lint",
-    "lint:api": "cd apps/api && npm run lint"
+    "lint:api": "cd apps/api && npm run lint",
+    "test:e2e": "cd apps/web && npm run test:e2e"
   },
   "workspaces": [
     "apps/*",

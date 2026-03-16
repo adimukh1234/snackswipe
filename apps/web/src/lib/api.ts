@@ -14,16 +14,19 @@ export interface ApiResponse<T> {
 // Generic fetch wrapper with error handling
 async function fetchApi<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  token?: string,
 ): Promise<ApiResponse<T>> {
   try {
     const url = `${API_URL}${endpoint}`;
-    
+    const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
     const response = await fetch(url, {
       ...options,
-      credentials: 'include', // Send cookies for auth
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...options.headers,
       },
     });
@@ -41,35 +44,6 @@ async function fetchApi<T>(
   }
 }
 
-// Auth API
-export const authApi = {
-  sendOtp: (phone: string) =>
-    fetchApi<{ success: boolean; dev_otp?: string }>('/api/auth/send-otp', {
-      method: 'POST',
-      body: JSON.stringify({ phone }),
-    }),
-
-  verifyOtp: (phone: string, otp: string) =>
-    fetchApi<{ success: boolean; user: User; token: string }>('/api/auth/verify-otp', {
-      method: 'POST',
-      body: JSON.stringify({ phone, otp }),
-    }),
-
-  getMe: () =>
-    fetchApi<User>('/api/auth/me'),
-
-  updateProfile: (data: { name?: string; email?: string }) =>
-    fetchApi<{ success: boolean; user: User }>('/api/auth/profile', {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }),
-
-  logout: () =>
-    fetchApi<{ success: boolean }>('/api/auth/logout', {
-      method: 'POST',
-    }),
-};
-
 // Dishes API
 export const dishesApi = {
   getFeed: (params?: { limit?: number; category?: string; isVeg?: boolean }) => {
@@ -82,11 +56,14 @@ export const dishesApi = {
     return fetchApi<{ dishes: Dish[]; hasMore: boolean }>(`/api/dishes/feed${query ? `?${query}` : ''}`);
   },
 
-  swipe: (dishId: string, action: 'like' | 'skip' | 'superlike', sessionId?: string) =>
+  swipe: (dishId: string, action: 'like' | 'skip' | 'superlike', token?: string, sessionId?: string) =>
     fetchApi<{ success: boolean }>('/api/dishes/swipe', {
       method: 'POST',
       body: JSON.stringify({ dishId, action, sessionId }),
-    }),
+    }, token),
+
+  search: (q: string, limit?: number) =>
+    fetchApi<{ dishes: Dish[] }>(`/api/dishes/search?q=${encodeURIComponent(q)}${limit ? `&limit=${limit}` : ''}`),
 
   getById: (id: string) =>
     fetchApi<Dish>(`/api/dishes/${id}`),
@@ -100,39 +77,58 @@ export const dishesApi = {
 
 // Orders API
 export const ordersApi = {
-  create: (items: OrderItem[], deliveryAddress: DeliveryAddress) =>
+  create: (items: OrderItem[], deliveryAddress: DeliveryAddress, token?: string) =>
     fetchApi<{ success: boolean; order: Order }>('/api/orders', {
       method: 'POST',
+      body: JSON.stringify({ items, deliveryAddress, paymentMethod: 'cod' }),
+    }, token),
+
+  getHistory: (limit: number | undefined, token?: string) =>
+    fetchApi<{ orders: Order[] }>(`/api/orders/history${limit ? `?limit=${limit}` : ''}`, {}, token),
+
+  getById: (id: string, token?: string) =>
+    fetchApi<Order>(`/api/orders/${id}`, {}, token),
+
+  cancel: (id: string, token?: string) =>
+    fetchApi<{ success: boolean }>(`/api/orders/${id}/cancel`, { method: 'POST' }, token),
+
+  reorder: (id: string, token?: string) =>
+    fetchApi<{ success: boolean }>(`/api/orders/${id}/reorder`, { method: 'POST' }, token),
+};
+
+// Payments API (Razorpay)
+export const paymentsApi = {
+  initiate: (items: OrderItem[], deliveryAddress: DeliveryAddress, token: string) =>
+    fetchApi<{
+      razorpayOrderId: string;
+      amount: number;
+      currency: string;
+      key: string;
+      subtotal: number;
+      deliveryFee: number;
+      total: number;
+    }>('/api/payments/initiate', {
+      method: 'POST',
       body: JSON.stringify({ items, deliveryAddress }),
-    }),
+    }, token),
 
-  getHistory: (limit?: number) =>
-    fetchApi<{ orders: Order[] }>(`/api/orders/history${limit ? `?limit=${limit}` : ''}`),
-
-  getById: (id: string) =>
-    fetchApi<Order>(`/api/orders/${id}`),
-
-  cancel: (id: string) =>
-    fetchApi<{ success: boolean }>(`/api/orders/${id}/cancel`, {
+  verify: (
+    payload: {
+      razorpay_order_id: string;
+      razorpay_payment_id: string;
+      razorpay_signature: string;
+      items: OrderItem[];
+      deliveryAddress: DeliveryAddress;
+    },
+    token: string,
+  ) =>
+    fetchApi<{ success: boolean; order: Order }>('/api/payments/verify', {
       method: 'POST',
-    }),
-
-  reorder: (id: string) =>
-    fetchApi<{ success: boolean }>(`/api/orders/${id}/reorder`, {
-      method: 'POST',
-    }),
+      body: JSON.stringify(payload),
+    }, token),
 };
 
 // Types
-export interface User {
-  id: string;
-  phone: string;
-  name?: string;
-  email?: string;
-  avatarUrl?: string;
-  tasteProfile?: Record<string, unknown>;
-}
-
 export interface Dish {
   id: string;
   name: string;

@@ -39,19 +39,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const timer = setTimeout(async () => {
       setIsLoading(true);
       setHasSearched(true);
-      
-      const { data } = await dishesApi.getFeed({ limit: 50 });
-      
-      if (data?.dishes) {
-        const filtered = data.dishes.filter(dish => 
-          dish.name.toLowerCase().includes(query.toLowerCase()) ||
-          dish.description?.toLowerCase().includes(query.toLowerCase()) ||
-          dish.partnerName?.toLowerCase().includes(query.toLowerCase()) ||
-          dish.category?.toLowerCase().includes(query.toLowerCase())
-        );
-        setResults(filtered.slice(0, 10));
-      }
-      
+
+      const { data } = await dishesApi.search(query, 10);
+      setResults(data?.dishes ?? []);
+
       setIsLoading(false);
     }, 300);
 

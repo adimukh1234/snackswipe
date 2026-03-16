@@ -15,10 +15,12 @@ export default function DiscoverPage() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'crave' | 'super'>('crave');
+  const [particles, setParticles] = useState<{ id: number; x: number; y: number }[]>([]);
   const [sessionId] = useState(() => crypto.randomUUID());
   const [showInfo, setShowInfo] = useState(false);
   const cardRef = useRef<SwipeCardRef>(null);
   const addItem = useCartStore((state) => state.addItem);
+  const particleCounter = useRef(0);
 
   const { data, isLoading, error, refetch } = useFeed({ limit: 20 });
   const swipeMutation = useSwipe();
@@ -31,6 +33,16 @@ export default function DiscoverPage() {
 
   const currentDish = localDishes[0];
   const remainingCount = localDishes.length;
+
+  const fireParticles = useCallback(() => {
+    const newParticles = Array.from({ length: 8 }, (_, i) => ({
+      id: ++particleCounter.current * 10 + i,
+      x: (Math.random() - 0.5) * 220,
+      y: -(Math.random() * 180 + 60),
+    }));
+    setParticles(newParticles);
+    setTimeout(() => setParticles([]), 900);
+  }, []);
 
   const showAddedToast = (dishName: string, type: 'crave' | 'super' = 'crave') => {
     setToastMessage(type === 'super' ? `⚡ ${dishName}` : `${dishName}`);
@@ -58,9 +70,10 @@ export default function DiscoverPage() {
         partnerId: currentDish.partnerId,
       });
       showAddedToast(currentDish.name, 'crave');
+      fireParticles();
     }
     setLocalDishes((prev) => prev.slice(1));
-  }, [currentDish, addItem, swipeMutation, sessionId]);
+  }, [currentDish, addItem, swipeMutation, sessionId, fireParticles]);
 
   const handleSuperLike = useCallback(() => {
     if (currentDish) {
@@ -235,6 +248,7 @@ export default function DiscoverPage() {
         >
           {/* PASS — Raspberry */}
           <motion.button
+            data-testid="btn-pass"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.88 }}
             onClick={() => cardRef.current?.swipeLeft()}
@@ -264,6 +278,7 @@ export default function DiscoverPage() {
 
           {/* CRAVE — Acid Lime */}
           <motion.button
+            data-testid="btn-crave"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.88 }}
             onClick={() => cardRef.current?.swipeRight()}
@@ -279,13 +294,32 @@ export default function DiscoverPage() {
         </motion.div>
       )}
 
+      {/* Particle burst on like */}
+      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 pointer-events-none z-50">
+        <AnimatePresence>
+          {particles.map((p) => (
+            <motion.div
+              key={p.id}
+              initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+              animate={{ x: p.x, y: p.y, scale: 0, opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.7, ease: [0.2, 0.8, 0.6, 1] }}
+              className="absolute w-4 h-4 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
+              style={{ fontSize: 14 }}
+            >
+              ❤️
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
       {/* Toast */}
       <AnimatePresence>
         {showToast && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            initial={{ opacity: 0, y: 40, scale: 0.85 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 500, damping: 25 } }}
+            exit={{ opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.2 } }}
             className="fixed bottom-36 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full z-50 flex items-center gap-3"
             style={{
               background: toastType === 'super' 
@@ -329,7 +363,8 @@ function StackDishCard({
   const barCount = Math.min(Math.max(imageCount, 1), 5);
 
   return (
-    <div 
+    <div
+      data-testid="dish-card"
       className="w-full h-full rounded-[28px] overflow-hidden relative"
       style={{ background: '#0A0A0F' }}
     >

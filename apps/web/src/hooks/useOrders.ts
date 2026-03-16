@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@clerk/nextjs';
 import { ordersApi, Order } from '@/lib/api';
 
 // Query keys
@@ -10,10 +11,12 @@ export const orderKeys = {
 
 // Get order history
 export function useOrderHistory(limit?: number) {
+  const { getToken } = useAuth();
   return useQuery({
     queryKey: orderKeys.history(limit),
     queryFn: async () => {
-      const { data, error } = await ordersApi.getHistory(limit);
+      const token = await getToken();
+      const { data, error } = await ordersApi.getHistory(limit, token ?? undefined);
       if (error) throw new Error(error);
       return data;
     },
@@ -22,10 +25,12 @@ export function useOrderHistory(limit?: number) {
 
 // Get single order
 export function useOrder(id: string) {
+  const { getToken } = useAuth();
   return useQuery({
     queryKey: orderKeys.detail(id),
     queryFn: async () => {
-      const { data, error } = await ordersApi.getById(id);
+      const token = await getToken();
+      const { data, error } = await ordersApi.getById(id, token ?? undefined);
       if (error) throw new Error(error);
       return data;
     },
@@ -36,10 +41,12 @@ export function useOrder(id: string) {
 // Cancel order mutation
 export function useCancelOrder() {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
   return useMutation({
     mutationFn: async (orderId: string) => {
-      const { data, error } = await ordersApi.cancel(orderId);
+      const token = await getToken();
+      const { data, error } = await ordersApi.cancel(orderId, token ?? undefined);
       if (error) throw new Error(error);
       return data;
     },
@@ -52,10 +59,12 @@ export function useCancelOrder() {
 // Reorder mutation
 export function useReorder() {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
   return useMutation({
     mutationFn: async (orderId: string) => {
-      const { data, error } = await ordersApi.reorder(orderId);
+      const token = await getToken();
+      const { data, error } = await ordersApi.reorder(orderId, token ?? undefined);
       if (error) throw new Error(error);
       return data;
     },

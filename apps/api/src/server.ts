@@ -2,16 +2,17 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
 import jwt from '@fastify/jwt';
+import rateLimit from '@fastify/rate-limit';
 import { config } from 'dotenv';
 
 // Load environment variables
 config();
 
 // Import routes
-import { authRoutes } from './routes/auth.routes';
 import { dishRoutes } from './routes/dishes.routes';
 import { orderRoutes } from './routes/orders.routes';
 import { partnerRoutes } from './routes/partners.routes';
+import { paymentRoutes } from './routes/payments.routes';
 
 const fastify = Fastify({
   logger: true,
@@ -33,6 +34,12 @@ const registerPlugins = async () => {
       signed: false,
     },
   });
+
+  // Rate limiting: 100 req/min globally
+  await fastify.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
+  });
 };
 
 // Register routes
@@ -43,9 +50,9 @@ const registerRoutes = async () => {
   });
 
   // API routes
-  await fastify.register(authRoutes, { prefix: '/api/auth' });
   await fastify.register(dishRoutes, { prefix: '/api/dishes' });
   await fastify.register(orderRoutes, { prefix: '/api/orders' });
+  await fastify.register(paymentRoutes, { prefix: '/api/payments' });
   await fastify.register(partnerRoutes, { prefix: '/api/partners' });
 };
 
@@ -62,7 +69,6 @@ const start = async () => {
 🚀 Zomagram API Server Running
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📍 Health:     http://localhost:${port}/health
-📍 Auth:       http://localhost:${port}/api/auth
 📍 Dishes:     http://localhost:${port}/api/dishes
 📍 Orders:     http://localhost:${port}/api/orders
 📍 Partners:   http://localhost:${port}/api/partners

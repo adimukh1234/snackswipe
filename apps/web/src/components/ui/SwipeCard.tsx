@@ -30,21 +30,22 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
   
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  
-  // Rotation based on horizontal drag
-  const rotate = useTransform(x, [-400, 0, 400], [-15, 0, 15]);
-  
-  // Overlay opacity — CRAVE (acid lime) and PASS (raspberry)
-  const craveOpacity = useTransform(x, [0, 60, 150], [0, 0.6, 1]);
-  const passOpacity = useTransform(x, [-150, -60, 0], [1, 0.6, 0]);
+
+  // Ease-in rotation curve — slow start, accelerates at edges
+  const rotate = useTransform(x, [-300, -80, 0, 80, 300], [-20, -5, 0, 5, 20]);
+
+  // Stamp opacity
+  const craveOpacity = useTransform(x, [0, 50, 130], [0, 0.7, 1]);
+  const passOpacity = useTransform(x, [-130, -50, 0], [1, 0.7, 0]);
   const superLikeOpacity = useTransform(y, [-150, -60, 0], [1, 0.6, 0]);
-  
+
+  // Stamp scale — stamps "snap in" as confidence increases
+  const craveScale = useTransform(x, [0, 50, 130], [0.75, 0.9, 1]);
+  const passScale = useTransform(x, [-130, -50, 0], [1, 0.9, 0.75]);
+  const superLikeScale = useTransform(y, [-150, -60, 0], [1, 0.9, 0.75]);
+
   // Scale effect during drag
-  const dragScale = useTransform(
-    x,
-    [-200, 0, 200],
-    [0.97, 1, 0.97]
-  );
+  const dragScale = useTransform(x, [-200, 0, 200], [0.97, 1, 0.97]);
 
   // Background glow intensity based on swipe direction
   const craveGlow = useTransform(x, [0, 100, 200], [0, 0.15, 0.35]);
@@ -144,7 +145,7 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
       {/* CRAVE Stamp — Acid Lime (Brutalist) */}
       <motion.div
         className="absolute top-16 left-6 z-30 pointer-events-none"
-        style={{ opacity: craveOpacity }}
+        style={{ opacity: craveOpacity, scale: craveScale }}
       >
         <div 
           className="px-5 py-2 border-[3px] rounded-lg"
@@ -170,7 +171,7 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
       {/* PASS Stamp — Raspberry (Brutalist) */}
       <motion.div
         className="absolute top-16 right-6 z-30 pointer-events-none"
-        style={{ opacity: passOpacity }}
+        style={{ opacity: passOpacity, scale: passScale }}
       >
         <div 
           className="px-5 py-2 border-[3px] rounded-lg"
@@ -196,7 +197,7 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
       {/* SUPER Stamp — Acid Lime Vertical (Brutalist) */}
       <motion.div
         className="absolute bottom-32 left-1/2 -translate-x-1/2 z-30 pointer-events-none"
-        style={{ opacity: superLikeOpacity }}
+        style={{ opacity: superLikeOpacity, scale: superLikeScale }}
       >
         <div 
           className="px-5 py-2 border-[3px] rounded-lg"
