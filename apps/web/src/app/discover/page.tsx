@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, ChevronLeft, RotateCcw, Info, Loader2, ChevronUp } from 'lucide-react';
+import { X, Heart, ChevronLeft, RotateCcw, Info, Loader2, ChevronUp, ShoppingCart } from 'lucide-react';
 import { SwipeCard, SwipeCardRef } from '@/components/ui/SwipeCard';
 import { Button } from '@/components/ui/Button';
 import { useCartStore } from '@/stores/cartStore';
@@ -20,6 +20,7 @@ export default function DiscoverPage() {
   const [showInfo, setShowInfo] = useState(false);
   const cardRef = useRef<SwipeCardRef>(null);
   const addItem = useCartStore((state) => state.addItem);
+  const cartCount = useCartStore((state) => state.getItemCount());
   const particleCounter = useRef(0);
 
   const { data, isLoading, error, refetch } = useFeed({ limit: 20 });
@@ -59,35 +60,51 @@ export default function DiscoverPage() {
   }, [currentDish, swipeMutation, sessionId]);
 
   const handleSwipeRight = useCallback(() => {
-    if (currentDish) {
-      swipeMutation.mutate({ dishId: currentDish.id, action: 'like', sessionId });
-      addItem({
-        dishId: currentDish.id,
-        name: currentDish.name,
-        price: parseFloat(currentDish.price),
-        imageUrl: currentDish.thumbnailUrl || currentDish.imageUrls?.[0] || '',
-        partnerName: currentDish.partnerName || 'Restaurant',
-        partnerId: currentDish.partnerId,
-      });
-      showAddedToast(currentDish.name, 'crave');
-      fireParticles();
-    }
+    if (!currentDish) return;
+
+    // Add to cart immediately for responsive UX
+    addItem({
+      dishId: currentDish.id,
+      name: currentDish.name,
+      price: parseFloat(currentDish.price),
+      imageUrl: currentDish.thumbnailUrl || currentDish.imageUrls?.[0] || '',
+      partnerName: currentDish.partnerName || 'Restaurant',
+      partnerId: currentDish.partnerId,
+    });
+
+    // Track swipe in API (non-blocking - cart works even if this fails)
+    swipeMutation.mutate({
+      dishId: currentDish.id,
+      action: 'like',
+      sessionId
+    });
+
+    showAddedToast(currentDish.name, 'crave');
+    fireParticles();
     setLocalDishes((prev) => prev.slice(1));
   }, [currentDish, addItem, swipeMutation, sessionId, fireParticles]);
 
   const handleSuperLike = useCallback(() => {
-    if (currentDish) {
-      swipeMutation.mutate({ dishId: currentDish.id, action: 'superlike', sessionId });
-      addItem({
-        dishId: currentDish.id,
-        name: currentDish.name,
-        price: parseFloat(currentDish.price),
-        imageUrl: currentDish.thumbnailUrl || currentDish.imageUrls?.[0] || '',
-        partnerName: currentDish.partnerName || 'Restaurant',
-        partnerId: currentDish.partnerId,
-      });
-      showAddedToast(currentDish.name, 'super');
-    }
+    if (!currentDish) return;
+
+    // Add to cart immediately for responsive UX
+    addItem({
+      dishId: currentDish.id,
+      name: currentDish.name,
+      price: parseFloat(currentDish.price),
+      imageUrl: currentDish.thumbnailUrl || currentDish.imageUrls?.[0] || '',
+      partnerName: currentDish.partnerName || 'Restaurant',
+      partnerId: currentDish.partnerId,
+    });
+
+    // Track swipe in API (non-blocking - cart works even if this fails)
+    swipeMutation.mutate({
+      dishId: currentDish.id,
+      action: 'superlike',
+      sessionId
+    });
+
+    showAddedToast(currentDish.name, 'super');
     setLocalDishes((prev) => prev.slice(1));
   }, [currentDish, addItem, swipeMutation, sessionId]);
 
@@ -136,23 +153,41 @@ export default function DiscoverPage() {
             <ChevronLeft className="w-6 h-6" style={{ color: '#8B8B8B' }} />
           </motion.button>
         </Link>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <span 
+          <span
             className="text-lg font-bold uppercase tracking-wider"
             style={{ color: '#CCFF00', fontFamily: 'var(--font-display)', textShadow: '0 0 20px rgba(204, 255, 0, 0.3)' }}
           >
             THE STACK
           </span>
         </motion.div>
-        <div 
-          className="w-10 h-10 flex items-center justify-center rounded-full"
-          style={{ background: 'rgba(255, 255, 255, 0.05)' }}
-        >
-          <span className="text-sm font-bold" style={{ color: '#8B8B8B', fontFamily: 'var(--font-mono)' }}>{remainingCount}</span>
-        </div>
+        <Link href="/cart" className="relative">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-10 h-10 flex items-center justify-center rounded-full transition-colors relative"
+            style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+          >
+            <ShoppingCart className="w-5 h-5" style={{ color: cartCount > 0 ? '#CCFF00' : '#8B8B8B' }} />
+            {cartCount > 0 && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 text-[9px] font-bold rounded-full flex items-center justify-center"
+                style={{
+                  background: '#CCFF00',
+                  color: '#000000',
+                  boxShadow: '0 0 8px rgba(204, 255, 0, 0.4)',
+                }}
+              >
+                {cartCount > 9 ? '9+' : cartCount}
+              </motion.span>
+            )}
+          </motion.button>
+        </Link>
       </header>
 
       {/* Swipe Area */}
@@ -238,21 +273,20 @@ export default function DiscoverPage() {
         )}
       </div>
 
-      {/* Action Buttons — PASS / INFO / CRAVE */}
+      {/* Action Buttons — PASS / SUPER LIKE / CRAVE */}
       {localDishes.length > 0 && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="flex items-center justify-center gap-6 py-4 px-6 safe-bottom flex-shrink-0"
         >
           {/* PASS — Raspberry */}
-          <motion.button
+          <button
             data-testid="btn-pass"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.88 }}
-            onClick={() => cardRef.current?.swipeLeft()}
-            className="w-16 h-16 flex items-center justify-center rounded-full"
+            type="button"
+            onClick={handleSwipeLeft}
+            className="w-16 h-16 flex items-center justify-center rounded-full transition-transform hover:scale-110 active:scale-88 outline-none"
             style={{
               background: 'rgba(255, 46, 99, 0.12)',
               border: '2px solid rgba(255, 46, 99, 0.3)',
@@ -260,29 +294,27 @@ export default function DiscoverPage() {
             }}
           >
             <X className="w-8 h-8" style={{ color: '#FF2E63' }} strokeWidth={3} />
-          </motion.button>
+          </button>
 
-          {/* INFO — Bone, subtle */}
-          <motion.button
-            whileHover={{ scale: 1.12 }}
-            whileTap={{ scale: 0.88 }}
-            onClick={() => cardRef.current?.swipeSuperLike()}
-            className="w-12 h-12 flex items-center justify-center rounded-full"
+          {/* SUPER LIKE — Bone, subtle */}
+          <button
+            type="button"
+            onClick={handleSuperLike}
+            className="w-12 h-12 flex items-center justify-center rounded-full transition-transform hover:scale-112 active:scale-88 outline-none"
             style={{
               background: 'rgba(255, 255, 255, 0.06)',
               border: '1.5px solid rgba(255, 255, 255, 0.1)',
             }}
           >
             <ChevronUp className="w-6 h-6" style={{ color: '#F5F0EB' }} />
-          </motion.button>
+          </button>
 
           {/* CRAVE — Acid Lime */}
-          <motion.button
+          <button
             data-testid="btn-crave"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.88 }}
-            onClick={() => cardRef.current?.swipeRight()}
-            className="w-16 h-16 flex items-center justify-center rounded-full"
+            type="button"
+            onClick={handleSwipeRight}
+            className="w-16 h-16 flex items-center justify-center rounded-full transition-transform hover:scale-110 active:scale-88 outline-none"
             style={{
               background: 'rgba(204, 255, 0, 0.12)',
               border: '2px solid rgba(204, 255, 0, 0.3)',
@@ -290,12 +322,12 @@ export default function DiscoverPage() {
             }}
           >
             <Heart className="w-8 h-8" style={{ color: '#CCFF00', fill: '#CCFF00' }} />
-          </motion.button>
+          </button>
         </motion.div>
       )}
 
       {/* Particle burst on like */}
-      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 pointer-events-none z-50">
+      <div className="container-fixed bottom-28 flex justify-center pointer-events-none z-50">
         <AnimatePresence>
           {particles.map((p) => (
             <motion.div
@@ -314,30 +346,32 @@ export default function DiscoverPage() {
       </div>
 
       {/* Toast */}
-      <AnimatePresence>
-        {showToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.85 }}
-            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 500, damping: 25 } }}
-            exit={{ opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.2 } }}
-            className="fixed bottom-36 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full z-50 flex items-center gap-3"
-            style={{
-              background: toastType === 'super' 
-                ? 'rgba(204, 255, 0, 0.9)'
-                : 'rgba(204, 255, 0, 0.15)',
-              color: toastType === 'super' ? '#000000' : '#CCFF00',
-              border: `1px solid rgba(204, 255, 0, ${toastType === 'super' ? '1' : '0.3'})`,
-              boxShadow: '0 0 30px rgba(204, 255, 0, 0.2)',
-              backdropFilter: 'blur(12px)',
-            }}
-          >
-            <Heart className="w-5 h-5" style={{ fill: 'currentColor' }} />
-            <p className="font-semibold text-sm" style={{ fontFamily: 'var(--font-display)' }}>
-              {toastMessage} stashed!
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="container-fixed bottom-36 flex justify-center pointer-events-none z-50">
+        <AnimatePresence>
+          {showToast && (
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.85 }}
+              animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 500, damping: 25 } }}
+              exit={{ opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.2 } }}
+              className="px-6 py-3 rounded-full flex items-center gap-3"
+              style={{
+                background: toastType === 'super'
+                  ? 'rgba(204, 255, 0, 0.9)'
+                  : 'rgba(204, 255, 0, 0.15)',
+                color: toastType === 'super' ? '#000000' : '#CCFF00',
+                border: `1px solid rgba(204, 255, 0, ${toastType === 'super' ? '1' : '0.3'})`,
+                boxShadow: '0 0 30px rgba(204, 255, 0, 0.2)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <Heart className="w-5 h-5" style={{ fill: 'currentColor' }} />
+              <p className="font-semibold text-sm" style={{ fontFamily: 'var(--font-display)' }}>
+                {toastMessage} stashed!
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

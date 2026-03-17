@@ -180,12 +180,12 @@ export default function OrdersPage() {
                     {order.partnerName || 'Restaurant'}
                   </p>
                   <div className="space-y-1">
-                    {order.items.slice(0, 3).map((item, idx) => (
+                    {Array.isArray(order.items) && order.items.slice(0, 3).map((item, idx) => (
                       <p key={idx} className="text-sm" style={{ color: '#8B8B8B' }}>
                         {item.qty}× {item.name}
                       </p>
                     ))}
-                    {order.items.length > 3 && (
+                    {Array.isArray(order.items) && order.items.length > 3 && (
                       <p className="text-sm" style={{ color: 'rgba(139, 139, 139, 0.6)' }}>
                         +{order.items.length - 3} more items
                       </p>

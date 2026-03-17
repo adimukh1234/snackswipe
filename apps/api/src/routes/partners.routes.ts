@@ -76,8 +76,9 @@ export async function partnerRoutes(fastify: FastifyInstance) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Create slug from name
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    // Create unique slug from name (append random suffix to avoid collisions)
+    const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const slug = `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`;
 
     // Create partner
     const [partner] = await db.insert(foodPartners).values({
@@ -253,12 +254,22 @@ export async function partnerRoutes(fastify: FastifyInstance) {
       return reply.status(404).send({ error: 'Dish not found' });
     }
 
+    // Whitelist updatable fields — never allow partnerId, likeCount, swipeCount, orderCount
+    const safeUpdates: Record<string, unknown> = {};
+    if (updates.name !== undefined) safeUpdates.name = updates.name;
+    if (updates.description !== undefined) safeUpdates.description = updates.description;
+    if (updates.price !== undefined) safeUpdates.price = updates.price.toFixed(2);
+    if (updates.imageUrls !== undefined) safeUpdates.imageUrls = updates.imageUrls;
+    if (updates.videoUrl !== undefined) safeUpdates.videoUrl = updates.videoUrl;
+    if (updates.thumbnailUrl !== undefined) safeUpdates.thumbnailUrl = updates.thumbnailUrl;
+    if (updates.tags !== undefined) safeUpdates.tags = updates.tags;
+    if (updates.category !== undefined) safeUpdates.category = updates.category;
+    if (updates.prepTimeMins !== undefined) safeUpdates.prepTimeMins = updates.prepTimeMins;
+    if (updates.isVeg !== undefined) safeUpdates.isVeg = updates.isVeg;
+    if ((updates as { isAvailable?: boolean }).isAvailable !== undefined) safeUpdates.isAvailable = (updates as { isAvailable?: boolean }).isAvailable;
+
     const [updatedDish] = await db.update(dishes)
-      .set({ 
-        ...updates,
-        price: updates.price ? updates.price.toFixed(2) : undefined,
-        updatedAt: new Date() 
-      })
+      .set({ ...safeUpdates, updatedAt: new Date() })
       .where(eq(dishes.id, id))
       .returning();
 

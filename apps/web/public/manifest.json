@@ -1,6 +1,6 @@
 {
-  "name": "Zomagram",
-  "short_name": "Zomagram",
+  "name": "CRAVE",
+  "short_name": "CRAVE",
   "description": "Swipe. Discover. Order. - Tinder for food ordering",
   "start_url": "/",
   "display": "standalone",

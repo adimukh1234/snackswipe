@@ -1,7 +1,16 @@
 import { test, expect } from '@playwright/test';
 import { setupClerkTestingToken } from '@clerk/testing/playwright';
 
+/**
+ * Orders tests require a signed-in Clerk user.
+ * Skipped until CLERK_TEST_USER_EMAIL is configured (see checkout.spec.ts for notes).
+ */
 test.describe('Orders / The Drop', () => {
+  test.skip(
+    !process.env.CLERK_TEST_USER_EMAIL,
+    'Skipped: requires CLERK_TEST_USER_EMAIL env var and a signed-in test user'
+  );
+
   test.beforeEach(async ({ page }) => {
     await setupClerkTestingToken({ page });
     await page.goto('/orders');

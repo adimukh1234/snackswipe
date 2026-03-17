@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Space_Grotesk, JetBrains_Mono, Geist } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Providers } from '@/components/Providers';
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const spaceGrotesk = Space_Grotesk({ 
   subsets: ['latin'],
@@ -49,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <html lang="en" className={cn(spaceGrotesk.variable, jetbrainsMono.variable, "font-sans", geist.variable)}>
         <head>
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="mobile-web-app-capable" content="yes" />

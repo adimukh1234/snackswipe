@@ -1,12 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { 
-  ChevronRight, 
-  MapPin, 
-  CreditCard, 
-  Bell, 
-  HelpCircle, 
+import {
+  ChevronRight,
+  MapPin,
+  CreditCard,
+  Bell,
+  HelpCircle,
   LogOut,
   Settings,
   Heart,
@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
+import { useOrderHistory } from '@/hooks/useOrders';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -33,12 +34,13 @@ const itemVariants = {
 
 export default function ProfilePage() {
   const { isLoaded, isSignedIn, user } = useUser();
+  const { data: orderData } = useOrderHistory();
 
   // Loading state
   if (!isLoaded) {
     return (
-      <div className="page-container bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+      <div className="page-container flex items-center justify-center" style={{ background: '#000000' }}>
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#CCFF00' }} />
       </div>
     );
   }
@@ -46,17 +48,19 @@ export default function ProfilePage() {
   // Not logged in state
   if (!isSignedIn) {
     return (
-      <div className="page-container bg-gradient-to-b from-gray-50 to-white">
-        <header className="px-5 py-6 safe-top">
-          <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+      <div className="page-container" style={{ background: '#000000' }}>
+        <header className="px-5 py-4 safe-top">
+          <h1 className="text-2xl font-bold" style={{ color: '#F5F0EB', fontFamily: 'var(--font-display)' }}>
+            Profile
+          </h1>
         </header>
 
         <div className="flex flex-col items-center justify-center px-8 py-16">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mb-6">
+          <div className="w-24 h-24 rounded-full mb-6 flex items-center justify-center" style={{ background: 'rgba(204, 255, 0, 0.08)', border: '1px solid rgba(204, 255, 0, 0.15)' }}>
             <span className="text-4xl">👤</span>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Welcome to Zomagram</h2>
-          <p className="text-gray-500 text-center mb-8 max-w-[260px]">
+          <h2 className="text-xl font-bold mb-2" style={{ color: '#F5F0EB', fontFamily: 'var(--font-display)' }}>Welcome to CRAVE</h2>
+          <p className="text-center mb-8 max-w-[260px]" style={{ color: '#8B8B8B' }}>
             Login to track orders, save favorites, and get personalized recommendations
           </p>
           <SignInButton mode="modal">
@@ -78,18 +82,19 @@ export default function ProfilePage() {
   ];
 
   // Get user initials
-  const initials = user?.firstName 
+  const initials = user?.firstName
     ? `${user.firstName[0]}${user.lastName?.[0] || ''}`.toUpperCase()
     : user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || 'U';
 
   return (
-    <div className="page-container bg-gradient-to-b from-gray-50 to-white">
+    <div className="page-container" style={{ background: '#000000' }}>
       {/* Header */}
-      <header className="px-5 py-6 safe-top">
-        <motion.h1 
+      <header className="px-5 py-4 safe-top">
+        <motion.h1
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-2xl font-bold text-gray-900"
+          className="text-2xl font-bold"
+          style={{ color: '#F5F0EB', fontFamily: 'var(--font-display)' }}
         >
           Profile
         </motion.h1>
@@ -99,25 +104,29 @@ export default function ProfilePage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mx-5 p-5 bg-white rounded-2xl shadow-md border border-gray-100"
+        className="mx-5 p-5 rounded-2xl"
+        style={{
+          background: '#0A0A0F',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+        }}
       >
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-purple-500/30 overflow-hidden">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold overflow-hidden" style={{ background: 'rgba(204, 255, 0, 0.12)', border: '2px solid rgba(204, 255, 0, 0.3)', boxShadow: '0 0 20px rgba(204, 255, 0, 0.15)' }}>
             {user?.imageUrl ? (
               <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              initials
+              <span style={{ color: '#CCFF00' }}>{initials}</span>
             )}
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-bold text-gray-900">
-              {user?.fullName || user?.firstName || 'Zomagram User'}
+            <h2 className="text-lg font-bold" style={{ color: '#F5F0EB' }}>
+              {user?.fullName || user?.firstName || 'CRAVE User'}
             </h2>
-            <p className="text-gray-500 text-sm">
+            <p className="text-sm" style={{ color: '#8B8B8B' }}>
               {user?.emailAddresses?.[0]?.emailAddress || user?.phoneNumbers?.[0]?.phoneNumber || ''}
             </p>
           </div>
-          <UserButton 
+          <UserButton
             appearance={{
               elements: {
                 avatarBox: 'w-10 h-10',
@@ -127,23 +136,23 @@ export default function ProfilePage() {
         </div>
 
         {/* Stats */}
-        <div className="flex justify-around mt-5 pt-5 border-t border-gray-100">
+        <div className="flex justify-around mt-5 pt-5" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">0</p>
-            <p className="text-xs text-gray-400 font-medium mt-0.5">Orders</p>
+            <p className="text-2xl font-bold" style={{ color: '#F5F0EB' }}>{orderData?.orders?.length ?? 0}</p>
+            <p className="text-xs font-medium mt-0.5" style={{ color: '#8B8B8B' }}>Orders</p>
           </div>
-          <div className="w-px bg-gray-100" />
+          <div className="w-px" style={{ background: 'rgba(255, 255, 255, 0.06)' }} />
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">0</p>
-            <p className="text-xs text-gray-400 font-medium mt-0.5">Favorites</p>
+            <p className="text-2xl font-bold" style={{ color: '#F5F0EB' }}>0</p>
+            <p className="text-xs font-medium mt-0.5" style={{ color: '#8B8B8B' }}>Favorites</p>
           </div>
-          <div className="w-px bg-gray-100" />
+          <div className="w-px" style={{ background: 'rgba(255, 255, 255, 0.06)' }} />
           <div className="text-center">
             <div className="flex items-center justify-center gap-1">
-              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              <p className="text-2xl font-bold text-gray-900">-</p>
+              <Star className="w-4 h-4" style={{ color: '#CCFF00', fill: '#CCFF00' }} />
+              <p className="text-2xl font-bold" style={{ color: '#F5F0EB' }}>-</p>
             </div>
-            <p className="text-xs text-gray-400 font-medium mt-0.5">Rating</p>
+            <p className="text-xs font-medium mt-0.5" style={{ color: '#8B8B8B' }}>Rating</p>
           </div>
         </div>
       </motion.div>
@@ -157,49 +166,62 @@ export default function ProfilePage() {
       >
         <div className="flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center">
-              <Crown className="w-6 h-6 text-white" />
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: 'rgba(204, 255, 0, 0.15)' }}>
+              <Crown className="w-6 h-6" style={{ color: '#CCFF00' }} />
             </div>
             <div>
-              <p className="text-white/80 text-sm">Upgrade to</p>
-              <p className="text-lg font-bold text-white">Zomagram Pro</p>
+              <p className="text-sm" style={{ color: 'rgba(245, 240, 235, 0.6)' }}>Upgrade to</p>
+              <p className="text-lg font-bold" style={{ color: '#F5F0EB', fontFamily: 'var(--font-display)' }}>CRAVE Pro</p>
             </div>
           </div>
-          <Button variant="secondary" size="sm" className="!bg-white !text-purple-600 !shadow-lg">
+          <Button variant="secondary" size="sm" className="!text-white">
             ₹99/mo
           </Button>
         </div>
-        <p className="text-white/70 text-xs mt-3 relative z-10">Free delivery • Priority support • Exclusive deals</p>
+        <p className="text-xs mt-3 relative z-10" style={{ color: 'rgba(245, 240, 235, 0.5)' }}>Free delivery • Priority support • Exclusive deals</p>
       </motion.div>
 
       {/* Menu Items */}
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="mx-5 mt-6 bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden"
+        className="mx-5 mt-6 rounded-2xl overflow-hidden"
+        style={{
+          background: '#0A0A0F',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+        }}
       >
         {menuItems.map((item) => {
           const Icon = item.icon;
           const content = (
             <motion.div
               variants={itemVariants}
-              className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+              className="w-full flex items-center justify-between px-5 py-4 transition-colors last:border-b-0"
+              style={{
+                borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.05)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background = 'transparent';
+              }}
             >
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-purple-600" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(204, 255, 0, 0.08)' }}>
+                  <Icon className="w-5 h-5" style={{ color: '#CCFF00' }} />
                 </div>
-                <span className="font-medium text-gray-900">{item.label}</span>
+                <span className="font-medium" style={{ color: '#F5F0EB' }}>{item.label}</span>
               </div>
               <div className="flex items-center gap-3">
                 {item.value && (
-                  <span className="text-sm text-gray-400">{item.value}</span>
+                  <span className="text-sm" style={{ color: '#8B8B8B' }}>{item.value}</span>
                 )}
                 {item.badge && (
-                  <span className="w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white" />
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#FF2E63', boxShadow: '0 0 0 2px #0A0A0F' }} />
                 )}
-                <ChevronRight className="w-5 h-5 text-gray-300" />
+                <ChevronRight className="w-5 h-5" style={{ color: '#8B8B8B' }} />
               </div>
             </motion.div>
           );
@@ -227,12 +249,12 @@ export default function ProfilePage() {
         transition={{ delay: 0.4 }}
         className="mx-5 mt-5 mb-8 flex justify-center"
       >
-        <UserButton 
+        <UserButton
           showName
           appearance={{
             elements: {
               rootBox: 'w-full',
-              userButtonTrigger: 'w-full flex items-center justify-center gap-2 py-4 text-purple-600 font-semibold hover:bg-purple-50 rounded-xl transition-colors border-2 border-purple-200',
+              userButtonTrigger: 'w-full flex items-center justify-center gap-2 py-4 font-semibold rounded-xl transition-colors',
             }
           }}
         />

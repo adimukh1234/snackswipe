@@ -229,6 +229,8 @@ export async function dishRoutes(fastify: FastifyInstance) {
       return reply.status(400).send({ error: parsed.error.issues[0].message });
     }
     const { q, limit } = parsed.data;
+    // Escape SQL wildcard characters to prevent slow query abuse
+    const escapedQ = q.replace(/[%_\\]/g, '\\$&');
 
     const results = await db
       .select(DISH_SELECT)
@@ -238,14 +240,14 @@ export async function dishRoutes(fastify: FastifyInstance) {
         and(
           eq(dishes.isAvailable, true),
           or(
-            ilike(dishes.name, `%${q}%`),
-            ilike(dishes.description, `%${q}%`),
+            ilike(dishes.name, `%${escapedQ}%`),
+            ilike(dishes.description, `%${escapedQ}%`),
             sql`${q} = ANY(${dishes.tags})`,
           ),
         ),
       )
       .orderBy(
-        sql`CASE WHEN ${dishes.name} ILIKE ${q + '%'} THEN 0 ELSE 1 END`,
+        sql`CASE WHEN ${dishes.name} ILIKE ${escapedQ + '%'} THEN 0 ELSE 1 END`,
         desc(dishes.likeCount),
       )
       .limit(limit);

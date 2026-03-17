@@ -1,4 +1,4 @@
-# Snackswipe — Session Primer
+# CRAVE — Session Primer
 
 > Tracks decisions made, work done, and next steps. Update this file as work progresses.
 

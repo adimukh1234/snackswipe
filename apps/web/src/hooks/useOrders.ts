@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@clerk/nextjs';
-import { ordersApi, Order } from '@/lib/api';
+import { ordersApi } from '@/lib/api';
 
 // Query keys
 export const orderKeys = {
@@ -11,7 +11,7 @@ export const orderKeys = {
 
 // Get order history
 export function useOrderHistory(limit?: number) {
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
   return useQuery({
     queryKey: orderKeys.history(limit),
     queryFn: async () => {
@@ -20,6 +20,7 @@ export function useOrderHistory(limit?: number) {
       if (error) throw new Error(error);
       return data;
     },
+    enabled: !!isSignedIn,
   });
 }
 

@@ -1,6 +1,6 @@
-# Snackswipe — Runbook
+# CRAVE — Runbook
 
-Operational reference for running and troubleshooting Snackswipe in production.
+Operational reference for running and troubleshooting CRAVE in production.
 
 ## Architecture
 
@@ -38,14 +38,14 @@ Fastify 5 API (any Node host)          ← PORT=4000
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `NEXT_PUBLIC_API_URL` | Yes | Full API base URL (e.g. `https://api.snackswipe.com`) |
+| `NEXT_PUBLIC_API_URL` | Yes | Full API base URL (e.g. `https://api.crave.com`) |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key (`pk_test_*` / `pk_live_*`) |
 | `CLERK_SECRET_KEY` | Yes | Clerk secret key (for server-side Clerk middleware) |
 
 ## Health Check
 
 ```bash
-curl https://api.snackswipe.com/health
+curl https://api.crave.com/health
 # → { "status": "ok", "timestamp": "..." }
 ```
 

@@ -83,8 +83,9 @@ export async function orderRoutes(fastify: FastifyInstance) {
       subtotal += price * item.quantity;
     }
 
-    const deliveryFee = 40; // Fixed delivery fee for MVP
-    const total = subtotal + deliveryFee;
+    const deliveryFee = 40;
+    const platformFee = 5;
+    const total = subtotal + deliveryFee + platformFee;
 
     // Create order
     const [order] = await db.insert(orders).values({

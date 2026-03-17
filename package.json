@@ -1,5 +1,5 @@
 {
-  "name": "zomagram",
+  "name": "crave",
   "version": "1.0.0",
   "private": true,
   "description": "Tinder for food ordering - swipe-based food discovery platform",
@@ -20,7 +20,8 @@
     "packages/*"
   ],
   "devDependencies": {
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "shadcn": "^4.0.8"
   },
   "engines": {
     "node": ">=20.0.0"

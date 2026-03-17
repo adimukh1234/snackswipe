@@ -9,8 +9,8 @@ import { useCartStore } from '@/stores/cartStore';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
-  { href: '/discover', icon: Compass, label: 'Stack' },
-  { href: '/cart', icon: ShoppingCart, label: 'Stash' },
+  { href: '/discover', icon: Compass, label: 'Swipe' },
+  { href: '/cart', icon: ShoppingCart, label: 'Cart' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
 
@@ -21,7 +21,7 @@ export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50">
       {/* Dark glassmorphism nav */}
-      <div className="max-w-[430px] mx-auto safe-bottom"
+      <div className="max-w-[430px] mx-auto safe-bottom rounded-b-[40px]"
         style={{
           background: 'rgba(0, 0, 0, 0.85)',
           backdropFilter: 'blur(24px) saturate(180%)',
@@ -34,7 +34,7 @@ export function BottomNav() {
             const isActive = pathname === item.href;
             const Icon = item.icon;
             const isCart = item.href === '/cart';
-            
+
             return (
               <Link
                 key={item.href}
@@ -58,11 +58,11 @@ export function BottomNav() {
                     />
                   )}
                   <div className="relative">
-                    <Icon 
+                    <Icon
                       className={cn(
                         'w-6 h-6 transition-all duration-150',
                         isActive ? 'scale-110' : ''
-                      )} 
+                      )}
                       style={{ color: isActive ? '#CCFF00' : '#8B8B8B' }}
                       strokeWidth={isActive ? 2.5 : 2}
                     />
@@ -84,7 +84,7 @@ export function BottomNav() {
                       </motion.span>
                     )}
                   </div>
-                  <span 
+                  <span
                     className={cn(
                       'text-[10px] transition-all duration-150',
                       isActive ? 'font-bold' : 'font-medium'

@@ -66,7 +66,7 @@ const start = async () => {
     await fastify.listen({ port, host: '0.0.0.0' });
     
     console.log(`
-🚀 Zomagram API Server Running
+🚀 CRAVE API Server Running
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📍 Health:     http://localhost:${port}/health
 📍 Dishes:     http://localhost:${port}/api/dishes

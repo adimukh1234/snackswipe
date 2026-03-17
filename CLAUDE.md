@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Snackswipe (Zomagram)** — a swipe-based food discovery and ordering PWA ("Tinder for food"). Users swipe dishes to build a cart, then check out. Food partners manage menus and orders via API.
+**CRAVE** — a swipe-based food discovery and ordering PWA ("Tinder for food"). Users swipe dishes to build a cart, then check out. Food partners manage menus and orders via API.
 
 ## Monorepo Structure
 
 ```
-snackswipe/
+crave/
 ├── apps/
 │   ├── web/   # Next.js 15 PWA (consumer app)
 │   └── api/   # Fastify 5 backend
@@ -46,7 +46,7 @@ npx drizzle-kit migrate       # apply migrations to Neon DB
 
 ### Frontend (`apps/web/`)
 - **App Router** — pages under `src/app/`
-- **State**: Zustand (`src/stores/cartStore.ts`) for cart (localStorage key: `zomagram-cart`), React Query for server state
+- **State**: Zustand (`src/stores/cartStore.ts`) for cart (localStorage key: `crave-cart`), React Query for server state
 - **API wrapper**: `src/lib/api.ts` — `fetchApi<T>(endpoint, options, token?)` — pass Clerk token for authenticated endpoints
 - **Key pages**: `/discover` (swipe stack), `/cart`, `/checkout`, `/orders`, `/profile`
 - **Hooks**: `useOrders` and `useSwipe` pass `getToken()` from `useAuth()` to API calls

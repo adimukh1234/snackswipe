@@ -1,0 +1,20 @@
+--- apps/web/src/app/discover/page.tsx
++++ apps/web/src/app/discover/page.tsx
+@@ -83,16 +83,19 @@
+   const handleCraveClick = useCallback(() => {
+     if (!currentDish) return;
++    console.log('[DEBUG] handleCraveClick', { currentDish: currentDish.name, cardRef: cardRef.current });
+     cardRef.current?.swipeRight();
+   }, [currentDish]);
+ 
+   const handlePassClick = useCallback(() => {
+     if (!currentDish) return;
++    console.log('[DEBUG] handlePassClick', { currentDish: currentDish.name, cardRef: cardRef.current });
+     cardRef.current?.swipeLeft();
+   }, [currentDish]);
+ 
+   const handleSuperClick = useCallback(() => {
+     if (!currentDish) return;
++    console.log('[DEBUG] handleSuperClick', { currentDish: currentDish.name, cardRef: cardRef.current });
+     cardRef.current?.swipeSuperLike();
+   }, [currentDish]);

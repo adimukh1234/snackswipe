@@ -1,11 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 // Types
-export interface ApiError {
-  error: string;
-  statusCode?: number;
-}
-
 export interface ApiResponse<T> {
   data?: T;
   error?: string;

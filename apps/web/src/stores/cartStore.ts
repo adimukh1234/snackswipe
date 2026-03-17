@@ -13,12 +13,13 @@ interface CartItem {
 
 interface CartStore {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  addItem: (item: Omit<CartItem, 'quantity'>) => { replaced: boolean };
   removeItem: (dishId: string) => void;
   updateQuantity: (dishId: string, quantity: number) => void;
   clearCart: () => void;
   getTotal: () => number;
   getItemCount: () => number;
+  getPartnerId: () => string | null;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -27,7 +28,14 @@ export const useCartStore = create<CartStore>()(
       items: [],
       
       addItem: (item) => {
+        let replaced = false;
         set((state) => {
+          // If cart has items from a different partner, clear it first
+          const existingPartnerId = state.items[0]?.partnerId;
+          if (existingPartnerId && existingPartnerId !== item.partnerId) {
+            replaced = true;
+            return { items: [{ ...item, quantity: 1 }] };
+          }
           const existingItem = state.items.find(i => i.dishId === item.dishId);
           if (existingItem) {
             return {
@@ -40,6 +48,7 @@ export const useCartStore = create<CartStore>()(
           }
           return { items: [...state.items, { ...item, quantity: 1 }] };
         });
+        return { replaced };
       },
       
       removeItem: (dishId) => {
@@ -61,17 +70,21 @@ export const useCartStore = create<CartStore>()(
       },
       
       clearCart: () => set({ items: [] }),
-      
+
       getTotal: () => {
         return get().items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       },
-      
+
       getItemCount: () => {
         return get().items.reduce((sum, item) => sum + item.quantity, 0);
       },
+
+      getPartnerId: () => {
+        return get().items[0]?.partnerId ?? null;
+      },
     }),
     {
-      name: 'zomagram-cart',
+      name: 'crave-cart',
     }
   )
 );

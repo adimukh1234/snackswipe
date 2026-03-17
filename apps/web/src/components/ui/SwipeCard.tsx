@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
-import { useState, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { useState, useCallback, forwardRef, useImperativeHandle, useRef } from 'react';
 
 export type SwipeDirection = 'left' | 'right' | 'up' | 'down' | null;
 
@@ -26,7 +26,7 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
   onSuperLike,
   onDrag,
 }, ref) => {
-  const [isExiting, setIsExiting] = useState(false);
+  const isExitingRef = useRef(false);
   
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -53,7 +53,8 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
 
   // Exit animations
   const performSwipe = useCallback((direction: 'left' | 'right' | 'up') => {
-    setIsExiting(true);
+    if (isExitingRef.current) return;
+    isExitingRef.current = true;
     
     const exitX = direction === 'right' ? 1200 : direction === 'left' ? -1200 : 0;
     const exitY = direction === 'up' ? -1200 : 0;
@@ -134,7 +135,7 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({
         rotate,
         scale: dragScale,
       }}
-      drag={!isExiting}
+      drag={!isExitingRef.current}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.9}
       dragTransition={{ bounceStiffness: 600, bounceDamping: 30 }}
@@ -250,7 +251,7 @@ interface CardStackProps {
   onSuperLike?: (index: number) => void;
 }
 
-export function CardStack({ children, onSwipeLeft, onSwipeRight, onSuperLike }: CardStackProps) {
+function CardStack({ children, onSwipeLeft, onSwipeRight, onSuperLike }: CardStackProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const visibleCards = 3;
 

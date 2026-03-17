@@ -1,11 +1,11 @@
-# Zomagram - Tinder for Food Ordering
+# CRAVE - Tinder for Food Ordering
 
 A swipe-based food discovery and ordering platform built as a PWA.
 
 ## 🏗️ Project Structure
 
 ```
-zomagram/
+crave/
 ├── apps/
 │   ├── web/          # Next.js PWA (Consumer + Partner Dashboard)
 │   └── api/          # Fastify API Server

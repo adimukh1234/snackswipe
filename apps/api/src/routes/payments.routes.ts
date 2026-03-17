@@ -82,7 +82,8 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       }
 
       const deliveryFee = 40;
-      const total = subtotal + deliveryFee;
+      const platformFee = 5;
+      const total = subtotal + deliveryFee + platformFee;
       const amountInPaise = Math.round(total * 100);
 
       try {
@@ -100,6 +101,7 @@ export async function paymentRoutes(fastify: FastifyInstance) {
           key: process.env.RAZORPAY_KEY_ID,
           subtotal,
           deliveryFee,
+          platformFee,
           total,
         });
       } catch (err) {
@@ -161,7 +163,8 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       }
 
       const deliveryFee = 40;
-      const total = subtotal + deliveryFee;
+      const platformFee = 5;
+      const total = subtotal + deliveryFee + platformFee;
 
       const [order] = await db.insert(orders).values({
         userId,

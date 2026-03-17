@@ -1,4 +1,4 @@
-# Contributing to Snackswipe
+# Contributing to CRAVE
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@
 ```bash
 # 1. Clone and install
 git clone <repo>
-cd snackswipe
+cd crave
 npm install
 
 # 2. Configure environment
@@ -73,7 +73,7 @@ npm run dev
 ## Project Structure
 
 ```
-snackswipe/
+crave/
 ├── apps/
 │   ├── web/                  # Next.js 15 consumer PWA
 │   │   ├── src/app/          # App Router pages

@@ -5,6 +5,7 @@ import { ChevronLeft, Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucid
 import { useCartStore } from '@/stores/cartStore';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+import { DELIVERY_FEE, PLATFORM_FEE } from '@/lib/constants';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -22,10 +23,9 @@ const itemVariants = {
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getTotal, clearCart } = useCartStore();
   const total = getTotal();
-  const deliveryFee = items.length > 0 ? 40 : 0;
-  const platformFee = items.length > 0 ? 5 : 0;
-  const gst = total * 0.05;
-  const grandTotal = total + deliveryFee + platformFee + gst;
+  const deliveryFee = items.length > 0 ? DELIVERY_FEE : 0;
+  const platformFee = items.length > 0 ? PLATFORM_FEE : 0;
+  const grandTotal = total + deliveryFee + platformFee;
 
   // Group items by partner
   const groupedItems = items.reduce((acc, item) => {
@@ -144,6 +144,7 @@ export default function CartPage() {
                     {group.items.map((item, idx) => (
                       <motion.div
                         key={item.dishId}
+                        data-testid="cart-item"
                         layout
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -204,11 +205,11 @@ export default function CartPage() {
           </div>
 
           {/* Bill Breakdown — Receipt style */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="px-5 pb-36"
+            className="px-5 pb-[130px]"
           >
             <div 
               className="rounded-2xl p-5 space-y-4"
@@ -233,10 +234,6 @@ export default function CartPage() {
                   <span style={{ color: '#8B8B8B' }}>Platform fee</span>
                   <span className="font-medium" style={{ color: '#F5F0EB' }}>₹{platformFee.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span style={{ color: '#8B8B8B' }}>GST (5%)</span>
-                  <span className="font-medium" style={{ color: '#F5F0EB' }}>₹{gst.toFixed(2)}</span>
-                </div>
               </div>
               <div 
                 className="pt-4 flex justify-between items-center"
@@ -254,24 +251,22 @@ export default function CartPage() {
           </motion.div>
 
           {/* Slide to Pay CTA */}
-          <div className="fixed bottom-20 left-0 right-0 px-5 py-4" style={{
+          <div className="container-fixed bottom-[72px] px-5 py-4" data-testid="cart-cta-bar" style={{
             background: 'rgba(0, 0, 0, 0.9)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             borderTop: '1px solid rgba(255, 255, 255, 0.06)',
           }}>
-            <div className="max-w-[430px] mx-auto">
-              <Link href="/checkout">
-                <div className="slide-to-pay">
-                  <div className="slide-to-pay-track">
-                    <ArrowRight className="w-5 h-5" style={{ color: '#000000' }} />
-                  </div>
-                  <span className="slide-to-pay-text">
-                    Slide to Pay • ₹{grandTotal.toFixed(0)}
-                  </span>
+            <Link href="/checkout" data-testid="btn-checkout">
+              <div className="slide-to-pay">
+                <div className="slide-to-pay-track">
+                  <ArrowRight className="w-5 h-5" style={{ color: '#000000' }} />
                 </div>
-              </Link>
-            </div>
+                <span className="slide-to-pay-text">
+                  Slide to Pay • ₹{grandTotal.toFixed(0)}
+                </span>
+              </div>
+            </Link>
           </div>
         </>
       )}

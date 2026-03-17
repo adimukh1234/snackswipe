@@ -8,26 +8,10 @@ import { DishDetailModal } from '@/components/DishDetailModal';
 import { useFeed } from '@/hooks/useDishes';
 import { Dish } from '@/lib/api';
 import Link from 'next/link';
-
-// Shimmer skeleton component
-function Shimmer({ className, style }: { className?: string; style?: React.CSSProperties }) {
-  return (
-    <div
-      className={`relative overflow-hidden ${className ?? ''}`}
-      style={style}
-    >
-      <motion.div
-        className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)',
-          backgroundSize: '200% 100%',
-        }}
-        animate={{ backgroundPositionX: ['200%', '-200%'] }}
-        transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
-      />
-    </div>
-  );
-}
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress';
+import { useUser } from '@clerk/nextjs';
 
 const CATEGORIES = ['All', 'Pizza', 'Sushi', 'Burgers', 'Indian', 'Healthy', 'Desserts', 'Chinese'];
 
@@ -53,9 +37,13 @@ export default function HomePage() {
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [isDishModalOpen, setIsDishModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
+  const { user } = useUser();
 
   const { data, isLoading } = useFeed({ limit: 12, category: activeCategory === 'All' ? undefined : activeCategory.toLowerCase() });
   const dishes = data?.dishes || [];
+
+  // Use user's profile image from Clerk, fallback to sample image if not logged in
+  const profileImageUrl = user?.imageUrl || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop';
 
   const handleDishClick = (dish: Dish) => {
     setSelectedDish(dish);
@@ -70,8 +58,8 @@ export default function HomePage() {
   return (
     <div className="page-container" style={{ background: '#000000' }}>
       {/* ═══ Header ═══ */}
-      <header 
-        className="flex items-center justify-between p-6 sticky top-0 z-50 safe-top"
+      <header
+        className="flex items-center justify-between px-5 py-4 sticky top-0 z-50 safe-top"
         style={{
           background: 'rgba(0, 0, 0, 0.8)',
           backdropFilter: 'blur(16px)',
@@ -86,6 +74,7 @@ export default function HomePage() {
         </h1>
         <div className="flex items-center gap-3">
           <motion.button
+            data-testid="btn-search"
             whileTap={{ scale: 0.9 }}
             onClick={() => setIsSearchOpen(true)}
             className="flex items-center justify-center p-2 rounded-full"
@@ -106,13 +95,13 @@ export default function HomePage() {
           >
             <Bell className="w-5 h-5 text-white" />
           </motion.button>
-          <div 
+          <div
             className="w-10 h-10 rounded-full overflow-hidden"
             style={{ border: '2px solid #CCFF00' }}
           >
-            <img 
-              src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" 
-              alt="Profile" 
+            <img
+              src={profileImageUrl}
+              alt="Profile"
               className="w-full h-full object-cover"
             />
           </div>
@@ -166,7 +155,7 @@ export default function HomePage() {
         </section>
 
         {/* ═══ Category Chips ═══ */}
-        <section className="mb-8">
+        <section className="mb-6">
           <div className="flex gap-3 overflow-x-auto px-6 hide-scrollbar pb-1">
             {CATEGORIES.map((cat) => (
               <motion.button
@@ -221,9 +210,11 @@ export default function HomePage() {
                 12 min
               </span>
             </div>
-            <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.1)' }}>
-              <div className="h-full rounded-full" style={{ width: '70%', background: '#000000' }} />
-            </div>
+            <Progress value={70} className="gap-0">
+              <ProgressTrack className="h-3" style={{ background: 'rgba(0,0,0,0.15)' }}>
+                <ProgressIndicator style={{ background: '#000000' }} />
+              </ProgressTrack>
+            </Progress>
             <div className="flex items-center gap-2 text-sm font-medium" style={{ color: 'rgba(0,0,0,0.8)' }}>
               <span className="text-sm">📍</span>
               <span>Motto Ramen • 2.4 miles away</span>
@@ -234,8 +225,8 @@ export default function HomePage() {
         {/* ═══ Recent Craves ═══ */}
         <section className="mb-8">
           <div className="flex items-center justify-between px-6 mb-4">
-            <h3 
-              className="text-xl font-bold uppercase tracking-tighter text-white"
+            <h3
+              className="text-xl font-bold font-semibold uppercase tracking-tighter text-white"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               Recent Craves
@@ -256,11 +247,8 @@ export default function HomePage() {
             {isLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex-shrink-0 w-32">
-                  <Shimmer
-                    className="aspect-square rounded-lg mb-2"
-                    style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.1)' }}
-                  />
-                  <Shimmer className="h-3 w-20 rounded" style={{ background: '#1a1a1a' }} />
+                  <Skeleton className="aspect-square rounded-lg mb-2 w-32" style={{ background: '#1a1a1a' }} />
+                  <Skeleton className="h-3 w-20 rounded" style={{ background: '#1a1a1a' }} />
                 </div>
               ))
             ) : recentCraves.length > 0 ? (
@@ -313,11 +301,11 @@ export default function HomePage() {
               Trending Nearby
             </h3>
           </div>
-          <motion.div 
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 gap-6"
+            className="grid grid-cols-1 gap-4"
           >
             {isLoading ? (
               Array.from({ length: 2 }).map((_, i) => (
@@ -326,11 +314,11 @@ export default function HomePage() {
                   className="rounded-xl overflow-hidden"
                   style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.05)' }}
                 >
-                  <Shimmer className="h-48 w-full" style={{ background: '#121212' }} />
+                  <Skeleton className="h-40 w-full rounded-none" style={{ background: '#121212' }} />
                   <div className="p-4 space-y-3">
-                    <Shimmer className="h-5 w-40 rounded" style={{ background: '#121212' }} />
-                    <Shimmer className="h-3 w-32 rounded" style={{ background: '#121212' }} />
-                    <Shimmer className="h-10 w-full rounded" style={{ background: '#121212' }} />
+                    <Skeleton className="h-5 w-40 rounded" style={{ background: '#121212' }} />
+                    <Skeleton className="h-3 w-32 rounded" style={{ background: '#121212' }} />
+                    <Skeleton className="h-10 w-full rounded" style={{ background: '#121212' }} />
                   </div>
                 </div>
               ))
@@ -343,10 +331,10 @@ export default function HomePage() {
                   style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.05)' }}
                   onClick={() => handleDishClick(dish)}
                 >
-                  <div className="h-48 w-full">
-                    <img 
-                      src={dish.thumbnailUrl || dish.imageUrls?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600'} 
-                      alt={dish.name} 
+                  <div className="h-40 w-full">
+                    <img
+                      src={dish.thumbnailUrl || dish.imageUrls?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600'}
+                      alt={dish.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -397,12 +385,12 @@ export default function HomePage() {
                 { name: 'Midnight Dumplings', rating: '4.9', type: 'Chinese', dist: '0.8 miles' },
                 { name: 'Neon Sushi Bar', rating: '4.7', type: 'Japanese', dist: '1.2 miles' },
               ].map((item, i) => (
-                <div 
+                <div
                   key={i}
                   className="relative rounded-xl overflow-hidden"
                   style={{ background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.05)' }}
                 >
-                  <div className="h-48 w-full" style={{ background: '#121212' }} />
+                  <div className="h-40 w-full" style={{ background: '#121212' }} />
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="text-lg font-bold text-white uppercase" style={{ fontFamily: 'var(--font-display)' }}>

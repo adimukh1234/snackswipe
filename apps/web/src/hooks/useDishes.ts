@@ -85,5 +85,9 @@ export function useSwipe() {
       // Invalidate feed to refresh after swipe
       queryClient.invalidateQueries({ queryKey: dishKeys.all });
     },
+    onError: (error) => {
+      // Log error but don't block UX - cart still works
+      console.error('Swipe tracking failed:', error.message);
+    },
   });
 }
