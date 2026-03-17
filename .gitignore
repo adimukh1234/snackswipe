@@ -42,3 +42,18 @@ coverage/
 # Misc
 .cache/
 .turbo/
+
+# Claude Code & AI
+.claude/
+.mcp.json
+.mcp/
+*.claude
+claude-workspace.json
+claude-session-*.json
+
+# AI & LLM
+.gpteng/
+.openai-keys
+.anthropic-keys
+ai-*.json
+llm-*.json

@@ -47,3 +47,11 @@ npm run dev
 - Multi-restaurant cart
 - Real-time order tracking
 - Partner dashboard
+
+## 🎨 Design & Responsive Layout
+
+- **Mobile-First PWA**: Phone-in-browser design pattern (max-width: 430px) centered on desktop
+- **Dark Theme**: Midnight Bodega dark palette with acid-lime accents
+- **Responsive Components**: All fixed/floating elements properly constrained to mobile frame
+- **Rounded Design**: 40px border radius on mobile container for iPhone-like appearance
+- **Consistent UX**: Dark theme applied across all pages (home, discover, cart, checkout, orders, profile)

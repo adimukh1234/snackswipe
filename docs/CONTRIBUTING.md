@@ -133,10 +133,12 @@ Tests are in `apps/web/e2e/`:
 - `auth.setup.ts` — Clerk global auth setup
 - `home.spec.ts` — Home page (header, chips, sections)
 - `discover.spec.ts` — Swipe stack, PASS/CRAVE buttons
+- `discover-buttons-simple.spec.ts` — Button core functionality
 - `cart.spec.ts` — Cart badge, empty state
 - `checkout.spec.ts` — Address form, payment flow
 - `orders.spec.ts` — Order history
 - `search.spec.ts` — Search modal open/close/query
+- `layout-responsive.spec.ts` — Responsive design (mobile frame, dark theme, rounded corners)
 
 ## Code Style
 
